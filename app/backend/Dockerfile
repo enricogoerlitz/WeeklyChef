@@ -1,5 +1,5 @@
-FROM python:3.9.13-alpine3.16
-LABEL maintainer="devted-enricogoerlitz"
+FROM python:3.9-alpine3.13
+LABEL maintainer="devted.enricogoerlitz"
 
 ENV PYTHONUNBUFFERED 1
 
@@ -12,16 +12,20 @@ EXPOSE 8000
 ARG DEV=false
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        gcc libc-dev linux-headers postgresql-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
-    if [ $DEV = "true" ]; \
-        then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
+    if [ $DEV = "true" ] ; \
+        then echo "--DEV BUILD--" && /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
+    apk del .tmp-build-deps && \
     rm -rf /tmp && \
     adduser \
         --disabled-password \
         --no-create-home \
         django-user
 
-ENV PATH="/py/bin/$PATH"
+ENV PATH="/py/bin:$PATH"
 
 USER django-user
