@@ -4,6 +4,8 @@
 # general
 migrations
 .DS_Store
+info.*
+data
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
