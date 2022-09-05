@@ -6,6 +6,7 @@ import time
 from psycopg2 import OperationalError as Psycopg2OPError
 
 from django.db.utils import OperationalError
+from django.db import connections
 from django.core.management.base import BaseCommand
 
 
@@ -15,10 +16,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Entrypoint for command"""
         self.stdout.write("Waiting for database...")
+        db_connection = connections["default"]
         db_up = False
         while not db_up:
             try:
                 self.check(databases=["default"])
+                _ = db_connection.cursor()
                 db_up = True
             except (Psycopg2OPError, OperationalError):
                 self.stdout.write(
