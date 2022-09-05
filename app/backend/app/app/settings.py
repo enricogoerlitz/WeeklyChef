@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 # mypy: ignore-errors
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,12 +93,20 @@ DATABASES = {
     #     'HOST': 'localhost',
     #     'PORT': '3306',
     # }
+    # "default": {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'weeklychef',                      
+    #     'USER': 'teddy',
+    #     'PASSWORD': 'teddy',
+    #     'HOST': 'localhost',
+    #     'PORT': '5433',
+    # }
     "default": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'weeklychef',                      
-        'USER': 'teddy',
-        'PASSWORD': 'teddy',
-        'HOST': 'localhost',
+        'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': os.environ.get("DB_NAME"),                  
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASS"),
+        'HOST': os.environ.get("DB_HOST"),
         'PORT': '5433',
     }
 }
