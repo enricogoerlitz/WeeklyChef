@@ -2,6 +2,7 @@
 exclude =
     migrations,
     __pycache__,
+    __init__.py,
     admin.py,
     manage.py,
     settings.py,
