@@ -19,5 +19,5 @@ jobs:
         run: docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage.py test"
         working-directory: ./app/backend
       - name: Lint
-        run: docker-compose run --rm app sh -c "flake8 --ignore=F401,W504"
+        run: docker-compose run --rm app sh -c "flake8 --ignore=F401,W504,W293"
         working-directory: ./app/backend

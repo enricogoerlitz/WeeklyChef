@@ -11,7 +11,6 @@ def create_user(
     return User.objects.create_user(username, email, password)
 
 
-
 class UserModelTests(TestCase):
     """Test models."""
 

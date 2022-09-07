@@ -34,26 +34,18 @@ class Ingredient(models.Model):
     id = models.BigAutoField(primary_key=True)
     ingredient_name = models.CharField(
         unique=True,
-        max_length=50,
-        blank=False,
-        null=False
+        max_length=50
     )
     default_price = models.DecimalField(
         max_digits=7,
-        decimal_places=2,
-        blank=False,
-        null=False
+        decimal_places=2
     )
     ingredient_display_name = models.CharField(
-        max_length=50,
-        blank=False,
-        null=False
+        max_length=50
     )
     quantity_per_unit = models.DecimalField(
         max_digits=7,
-        decimal_places=2,
-        blank=False,
-        null=False
+        decimal_places=2
     )
     unit = models.ForeignKey(
         Unit,
@@ -76,24 +68,10 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     id = models.BigAutoField(primary_key=True)
-    recipe_name = models.CharField(
-        unique=True,
-        max_length=75, blank=False,
-        null=False
-    )
-    person_count = models.IntegerField(
-        blank=False,
-        null=False
-    )
-    prep_description = models.CharField(
-        max_length=1000,
-        blank=False,
-        null=False
-    )
-    cooking_duration_min = models.IntegerField(
-        blank=False,
-        null=False
-    )
+    recipe_name = models.CharField(max_length=50, unique=True)
+    person_count = models.IntegerField()
+    prep_description = models.CharField(max_length=1000)
+    cooking_duration_min = models.IntegerField()
     user = models.ForeignKey(
         User,
         models.SET_NULL,
@@ -110,18 +88,8 @@ class Recipe(models.Model):
 
 class RecipeFavorite(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(
-        User,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
+    user = models.ForeignKey(User, models.CASCADE)
+    recipe = models.ForeignKey(Recipe, models.CASCADE)
 
     class Meta:
         db_table = 'recipe_favorite'
@@ -133,18 +101,8 @@ class RecipeFavorite(models.Model):
 
 class RecipeImage(models.Model):
     id = models.BigAutoField(primary_key=True)
-    recipe = models.ForeignKey(
-        Recipe,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
-    image_path = models.CharField(
-        unique=True,
-        max_length=255,
-        blank=False,
-        null=False
-    )
+    recipe = models.ForeignKey(Recipe, models.CASCADE)
+    image_path = models.CharField(unique=True, max_length=255)
 
     class Meta:
         db_table = 'recipe_image'
@@ -155,24 +113,9 @@ class RecipeImage(models.Model):
 
 class RecipeIngredient(models.Model):
     id = models.BigAutoField(primary_key=True)
-    recipe = models.ForeignKey(
-        Recipe,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
-    ingredient = models.ForeignKey(
-        Ingredient,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
-    unit_quantity = models.DecimalField(
-        max_digits=7,
-        decimal_places=2,
-        blank=False,
-        null=False
-    )
+    recipe = models.ForeignKey(Recipe, models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, models.CASCADE)
+    unit_quantity = models.DecimalField(max_digits=7, decimal_places=2)
 
     class Meta:
         db_table = 'recipe_ingredient'
@@ -190,18 +133,8 @@ class RecipeRating(models.Model):
         blank=True,
         null=True
     )
-    recipe = models.ForeignKey(
-        Recipe,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
-    rating = models.DecimalField(
-        max_digits=2,
-        decimal_places=1,
-        blank=False,
-        null=False
-    )
+    recipe = models.ForeignKey(Recipe, models.CASCADE)
+    rating = models.DecimalField(max_digits=2, decimal_places=1)
 
     class Meta:
         db_table = 'recipe_rating'

@@ -8,9 +8,7 @@ class DayTime(models.Model):
     id = models.BigAutoField(primary_key=True)
     day_time_name = models.CharField(
         unique=True,
-        max_length=10,
-        blank=False,
-        null=False
+        max_length=10
     )
 
     class Meta:
@@ -24,11 +22,9 @@ class RecipeCart(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(
         User,
-        models.CASCADE,
-        blank=False,
-        null=False
+        models.CASCADE
     )
-    date = models.DateField(blank=False, null=False)
+    date = models.DateField()
     day_time = models.ForeignKey(
         DayTime,
         models.SET_NULL,
@@ -54,17 +50,10 @@ class RecipeCartIngredient(models.Model):
     id = models.BigAutoField(primary_key=True)
     shopping_cart_recipe = models.ForeignKey(
         RecipeCart,
-        models.CASCADE,
-        blank=False,
-        null=False
+        models.CASCADE
     )
-    ingredient = models.ForeignKey(
-        Ingredient,
-        models.CASCADE,
-        blank=False,
-        null=False
-    )
-    buy_unit_quantity = models.IntegerField(blank=False, null=False)
+    ingredient = models.ForeignKey(Ingredient, models.CASCADE)
+    buy_unit_quantity = models.IntegerField()
     is_buyed = models.BooleanField(default=False, blank=True)
 
     class Meta:
