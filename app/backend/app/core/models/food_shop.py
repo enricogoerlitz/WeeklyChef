@@ -33,7 +33,10 @@ class FoodShopArea(models.Model):
 
     class Meta:
         db_table = 'food_shop_area'
-        unique_together = (('food_shop', 'area_order_number'),)
+        unique_together = (
+            ('food_shop', 'area_order_number'),
+            ('food_shop', 'area_name'),
+        )
 
     def __str__(self) -> str:
         return f"{self.id} | {self.area_name} | {self.area_order_number}"
@@ -47,7 +50,10 @@ class FoodShopAreaPart(models.Model):
 
     class Meta:
         db_table = 'food_shop_area_part'
-        unique_together = (('area', 'area_part_order_number'),)
+        unique_together = (
+            ('area', 'area_part_order_number'),
+            ('area', 'area_part_name'),
+        )
 
     def __str__(self) -> str:
         return f"{self.id} | {self.area_part_name} | \

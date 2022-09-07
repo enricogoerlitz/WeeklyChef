@@ -6,9 +6,10 @@ from core.models import User
 def create_user(
     username: str,
     email: str = "teddy@email.com",
+    is_staff: bool = False,
     password: str = "testPW198o12u1938u9"
 ) -> User:
-    return User.objects.create_user(username, email, password)
+    return User.objects.create_user(username, email, is_staff, password)
 
 
 class UserModelTests(TestCase):

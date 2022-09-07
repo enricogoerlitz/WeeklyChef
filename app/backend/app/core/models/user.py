@@ -9,8 +9,8 @@ class UserManager(BaseUserManager):
         self,
         username: str,
         email: str = None,
-        password: str = None,
-        **extra_fields
+        is_staff: bool = False,
+        password: str = None
     ) -> AbstractBaseUser:
         """Create, save and return a new user."""
         if not username:
@@ -22,7 +22,7 @@ class UserManager(BaseUserManager):
         if email:
             email = self.normalize_email(email)
 
-        user = self.model(username=username, email=email, **extra_fields)
+        user = self.model(username=username, email=email, is_staff=is_staff)
         user.set_password(password)
         user.save(using=self._db)
 
@@ -35,8 +35,8 @@ class UserManager(BaseUserManager):
         password: str
     ) -> AbstractBaseUser:
         """Create and return a new superuser."""
-        user = self.create_user(username, email, password)
-        user.is_staff = True
+        user = self.create_user(username, email, True, password)
+        #  user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
 
