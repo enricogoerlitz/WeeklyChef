@@ -1,17 +1,67 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
-class User(models.Model):
+class UserManager(BaseUserManager):
+    """Manager for users."""
+
+    def create_user(
+        self,
+        username: str,
+        email: str = None,
+        password: str = None,
+        **extra_fields
+    ) -> AbstractBaseUser:
+        """Create, save and return a new user."""
+        if not username:
+            raise ValueError("User must have an username.")
+
+        if " " in username:
+            raise ValueError("Whitespaces are not allowed in a username.")
+        
+        if email:
+            email = self.normalize_email(email)
+
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_superuser(
+        self,
+        username: str,
+        email: str,
+        password: str
+    ) -> AbstractBaseUser:
+        """Create and return a new superuser."""
+        user = self.create_user(username, email, password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+
+        return user
+
+
+class User(AbstractBaseUser):
     id = models.BigAutoField(primary_key=True)
-    username = models.CharField(max_length=25)
-    email = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    is_superuser = models.IntegerField()
-    is_staff = models.IntegerField()
+    username = models.CharField(
+        max_length=35,
+        unique=True
+    )
+    email = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    is_staff = models.BooleanField(default=False)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = "username"
 
     class Meta:
-        db_table = 'user'
-        unique_together = (('username', 'email'),)
+        db_table = "user"
 
     def __str__(self) -> str:
-        return f"{self.id} | {self.username} | {self.email}"
+        return f"{self.id} | {self.username}"

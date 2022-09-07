@@ -8,3 +8,7 @@ exclude =
     settings.py,
     env,
     info.*
+
+ignore = 
+    W293,
+    W504
