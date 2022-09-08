@@ -5,7 +5,10 @@ from core.models import Ingredient, User
 
 class FoodShop(models.Model):
     id = models.BigAutoField(primary_key=True)
-    shop_name = models.CharField(unique=True, max_length=100)
+    shop_name = models.CharField(
+        unique=True,
+        max_length=100
+    )
     address = models.CharField(max_length=75)
     zip_code = models.CharField(max_length=10)
     city = models.CharField(max_length=100)

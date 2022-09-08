@@ -1,6 +1,8 @@
 from django.test import TestCase
 
 from core import models
+from core.tests.test_model_food_shop import create_food_shop
+from core.tests.test_model_user import setup_user
 
 
 def create_day_time(
@@ -41,12 +43,75 @@ def create_recipe_cart_ingredient(
     )
 
 
-class CartModelTests(TestCase):
-    """Test cart model"""
+class DayTimeModelTests(TestCase):
+    """Test day time model"""
+    
+    def test_create_day_time(self):
+        """Test creating day time"""
+        day_time_name = "Nachmittag"
+        day_time = create_day_time(day_time_name)
 
-    def setUp(self):
-        self.user = models.User.objects.create_user(
-            username="cart_teddy",
-            email="teddy@email.com",
-            password="pasiueefrrhfiuho83r"
+        self.assertEqual(day_time.day_time_name, day_time_name)
+
+
+class RecipeCartModelTests(TestCase):
+    """Test recipe cart model"""
+
+    def test_create_recipe_cart(self):
+        """Test recipe cart"""
+        user1 = setup_user("teddy1")
+        user2 = setup_user("teddy2")
+        day_time1 = create_day_time("vormittag")
+        day_time2 = create_day_time("nachmittag")
+        date1 = "2020-05-01"
+        date2 = "2021-05-02"
+        food_shop1 = create_food_shop("shop1")
+        food_shop2 = create_food_shop("shop2")
+        recipe_name1 = "recipe1"
+        recipe_name2 = "recipe2"
+
+        rc1 = create_recipe_cart(
+            user1,
+            food_shop1,
+            day_time1,
+            recipe_name1,
+            date1
         )
+        rc2 = create_recipe_cart(
+            user1,
+            food_shop2,
+            day_time1,
+            recipe_name2,
+            date2
+        )
+        rc3 = create_recipe_cart(
+            user1,
+            food_shop1,
+            day_time2,
+            recipe_name1,
+            date1
+        )
+        rc4 = create_recipe_cart(
+            user1,
+            food_shop1,
+            day_time1,
+            recipe_name2,
+            date1
+        )
+        rc5 = create_recipe_cart(
+            user2,
+            food_shop1,
+            day_time1,
+            recipe_name1,
+            date1
+        )
+    
+        self.assertEqual(rc1.user.id, user1.id)
+        self.assertEqual(rc1.food_shop.id, food_shop1.id)
+        self.assertEqual(rc1.day_time.id, day_time1.id)
+        self.assertEqual(rc1.recipe_name, recipe_name1)
+
+        self.assertEqual(rc2.food_shop.id, food_shop2.id)
+        self.assertEqual(rc3.day_time.id, day_time2.id)
+        self.assertEqual(rc4.recipe_name, recipe_name2)
+        self.assertEqual(rc5.user.id, user2.id)

@@ -3,6 +3,14 @@ from django.test import TestCase
 from core.models import User
 
 
+def setup_user(username: str = "recipe_teddy"):
+    return User.objects.create_user(
+        username=username,
+        email="teddy@email.com",
+        password="pasiuerhfiuho83r"
+    )
+
+
 def create_user(
     username: str,
     email: str = "teddy@email.com",
