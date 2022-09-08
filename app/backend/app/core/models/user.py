@@ -44,6 +44,8 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    """Application user"""
+    
     id = models.BigAutoField(primary_key=True)
     username = models.CharField(
         max_length=35,

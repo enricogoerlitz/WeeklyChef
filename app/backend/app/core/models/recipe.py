@@ -18,9 +18,7 @@ class Tag(models.Model):
     id = models.BigAutoField(primary_key=True)
     tag_name = models.CharField(
         unique=True,
-        max_length=25,
-        blank=True,
-        null=True
+        max_length=25
     )
 
     class Meta:
@@ -50,6 +48,7 @@ class Ingredient(models.Model):
     unit = models.ForeignKey(
         Unit,
         models.SET_NULL,
+        blank=False,
         null=True
     )
     is_spices = models.BooleanField(default=False)
@@ -70,12 +69,12 @@ class Recipe(models.Model):
     id = models.BigAutoField(primary_key=True)
     recipe_name = models.CharField(max_length=50, unique=True)
     person_count = models.IntegerField()
-    prep_description = models.CharField(max_length=1000)
+    prep_description = models.TextField(max_length=1000)
     cooking_duration_min = models.IntegerField()
     user = models.ForeignKey(
         User,
         models.SET_NULL,
-        blank=True,
+        blank=False,
         null=True
     )
 
@@ -130,7 +129,7 @@ class RecipeRating(models.Model):
     user = models.ForeignKey(
         User,
         models.SET_NULL,
-        blank=True,
+        blank=False,
         null=True
     )
     recipe = models.ForeignKey(Recipe, models.CASCADE)
@@ -148,15 +147,11 @@ class RecipeTag(models.Model):
     id = models.BigAutoField(primary_key=True)
     recipe = models.ForeignKey(
         Recipe,
-        models.CASCADE,
-        blank=True,
-        null=True
+        models.CASCADE
     )
     tag = models.ForeignKey(
         Tag,
-        models.CASCADE,
-        blank=True,
-        null=True
+        models.CASCADE
     )
 
     class Meta:
@@ -171,15 +166,11 @@ class Watchlist(models.Model):
     id = models.BigAutoField(primary_key=True)
     watchlist_name = models.CharField(
         unique=True,
-        max_length=50,
-        blank=True,
-        null=True
+        max_length=50
     )
     user = models.ForeignKey(
         User,
-        models.CASCADE,
-        blank=True,
-        null=True
+        models.CASCADE
     )
 
     class Meta:
@@ -198,9 +189,7 @@ class RecipeWatchlist(models.Model):
     )
     recipe = models.ForeignKey(
         Recipe,
-        models.CASCADE,
-        blank=True,
-        null=True
+        models.CASCADE
     )
 
     class Meta:

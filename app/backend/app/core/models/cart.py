@@ -28,14 +28,14 @@ class RecipeCart(models.Model):
     day_time = models.ForeignKey(
         DayTime,
         models.SET_NULL,
-        blank=True,
+        blank=False,
         null=True
     )
     recipe_name = models.CharField(max_length=75)
     food_shop = models.ForeignKey(
         FoodShop,
         models.SET_NULL,
-        blank=True,
+        blank=False,
         null=True
     )
 
@@ -54,7 +54,7 @@ class RecipeCartIngredient(models.Model):
     )
     ingredient = models.ForeignKey(Ingredient, models.CASCADE)
     buy_unit_quantity = models.IntegerField()
-    is_buyed = models.BooleanField(default=False, blank=True)
+    is_done = models.BooleanField(default=False, blank=True)
 
     class Meta:
         db_table = 'recipe_cart_ingredient'

@@ -32,21 +32,37 @@ def create_food_shop_area(
 
 
 def create_food_shop_area_part(
-
+    area: models.FoodShopArea,
+    area_part_name: str = "Eingangsbereich",
+    area_part_order_number: int = 1
 ) -> models.FoodShopAreaPart:
-    pass
+    return models.FoodShopAreaPart.objects.create(
+        area=area,
+        area_part_name=area_part_name,
+        area_part_order_number=area_part_order_number
+    )
 
 
 def create_food_shop_area_part_ingredient(
-
+    ingredient: models.Ingredient,
+    area_part: models.FoodShopAreaPart,
+    ingredient_price: float = 1.99
 ) -> models.FoodShopAreaPartIngredient:
-    pass
+    return models.FoodShopAreaPartIngredient.objects.create(
+        ingredient=ingredient,
+        area_part=area_part,
+        ingredient_price=ingredient_price
+    )
 
 
 def create_preferred_user_food_shop(
-
+    user: models.User,
+    food_shop: models.FoodShop
 ) -> models.PreferredUserFoodShop:
-    pass
+    return models.PreferredUserFoodShop.objects.create(
+        user=user,
+        food_shop=food_shop
+    )
 
 
 class FoodShopModelTests(TestCase):

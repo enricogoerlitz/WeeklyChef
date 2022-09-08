@@ -85,7 +85,7 @@ class PreferredUserFoodShop(models.Model):
     food_shop = models.ForeignKey(
         FoodShop,
         models.SET_NULL,
-        blank=True,
+        blank=False,
         null=True
     )
 
