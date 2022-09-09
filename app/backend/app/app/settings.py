@@ -22,7 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-p5-)d%b)5t)xl!@3qse-6=2n6v*m!x2)fez&nlzip_wmg95%@t'
+SECRET_KEY = 'django-insecure-p5-)d%b)5t)xl!@3qse-6=2n6v*m!x2)fez&nlzip_wmg95%@t'    # TODO: os.environ.get(...)
+JWT_SECRET_KEY = "change_me: uborehjnuobhefjnrbhoijngrvbefhowijnjnh"  # TODO: os.environ.get(...)
+JWT_ISSUER = "WEEKLY_CHEF_APP"   # TODO: os.environ.get(...)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
