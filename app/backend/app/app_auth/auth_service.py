@@ -2,7 +2,6 @@ from datetime import datetime, timezone, timedelta
 from typing import Union
 
 from app import settings
-from core import models
 
 import jwt
 
@@ -10,21 +9,12 @@ import jwt
 EXP_DURATION = {"days": 30}
 
 
-def register_user() -> models.User:
-    # das einfach über POST in ViewSet abwickeln? -> NEIN -> brauchen JWT!
-    pass
+# login/register in serializer und APIView
 
 
-def login_user() -> tuple[models.User, dict]:
-    """
-    Fetch the user from the db and generates an jwt access and refresh token
-    Returns the user and the both tokes as dict as tuple
-    """
-    pass
-
-
-def _create_access_refresh_token(data: dict) -> dict:
+def create_access_refresh_token(user_id: int) -> dict:
     """Generates and returns an access and refresh jwt token"""
+    data = {"user_id": user_id}
     return {
         "token": _create_access_token(data),
         "refresh_token": _create_refresh_token(data)
@@ -50,7 +40,10 @@ def _create_token(
     """Create a jwt token"""
     creation_date = datetime.now(tz=timezone.utc)
     issuer = settings.JWT_ISSUER
-    jwt_token_settings = {"iss": issuer, "creation_date": creation_date}
+    jwt_token_settings: dict = {
+        "iss": issuer,
+        "creation_date": str(creation_date)
+    }
     if exp_duration:
         exp = creation_date + timedelta(**exp_duration)
         jwt_token_settings = {"exp": exp} | jwt_token_settings
@@ -59,7 +52,7 @@ def _create_token(
     return jwt.encode(payload, key=settings.JWT_SECRET_KEY, algorithm="HS256")
 
 
-def _decode_token(token: str) -> dict:
+def decode_token(token: str) -> dict:
     """
     Validate an given jwt token
     Raises jwt.ExpiredSignatureError
