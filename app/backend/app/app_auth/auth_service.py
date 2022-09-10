@@ -1,9 +1,13 @@
 from datetime import datetime, timezone, timedelta
+from typing import Union
 
 from app import settings
 from core import models
 
 import jwt
+
+
+EXP_DURATION = {"days": 30}
 
 
 def register_user() -> models.User:
@@ -19,7 +23,7 @@ def login_user() -> tuple[models.User, dict]:
     pass
 
 
-def _get_access_refresh_token(data: dict) -> dict:
+def _create_access_refresh_token(data: dict) -> dict:
     """Generates and returns an access and refresh jwt token"""
     return {
         "token": _create_access_token(data),
@@ -29,21 +33,30 @@ def _get_access_refresh_token(data: dict) -> dict:
 
 def _create_access_token(data: dict) -> str:
     """Generates and returns an access jwt token"""
-    return _create_token(data, True)
+    payload = data | {"is_refresh_token": False}
+    return _create_token(payload, exp_duration=EXP_DURATION)
 
 
 def _create_refresh_token(data: dict) -> str:
     """Generates and returns an refresh jwt token"""
-    return _create_token(data | {"is_refresh_token": True}, False)
+    payload = data | {"is_refresh_token": True}
+    return _create_token(payload, exp_duration=None)
 
 
-def _create_token(data: dict, do_exp: bool = True) -> str:
-    exp = datetime.now(tz=timezone.utc) + timedelta(days=30)
+def _create_token(
+    data: dict,
+    exp_duration: Union[dict, None] = EXP_DURATION
+) -> str:
+    """Create a jwt token"""
+    creation_date = datetime.now(tz=timezone.utc)
     issuer = settings.JWT_ISSUER
-    jwt_token_settings = {"exp": exp, "iss": issuer} if do_exp else {"iss": issuer}
+    jwt_token_settings = {"iss": issuer, "creation_date": creation_date}
+    if exp_duration:
+        exp = creation_date + timedelta(**exp_duration)
+        jwt_token_settings = {"exp": exp} | jwt_token_settings
     payload = data | jwt_token_settings
 
-    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, key=settings.JWT_SECRET_KEY, algorithm="HS256")
 
 
 def _decode_token(token: str) -> dict:
@@ -51,6 +64,11 @@ def _decode_token(token: str) -> dict:
     Validate an given jwt token
     Raises jwt.ExpiredSignatureError
     Raises jwt.InvalidSignatureError
+    Returns decoded token data
     """
-    token_data = jwt.decode(token, settings.JWT_SECRET_KEY, issuer=settings.JWT_ISSUER, algorithms=["HS256"])
-    return token_data
+    return jwt.decode(
+        token,
+        settings.JWT_SECRET_KEY,
+        issuer=settings.JWT_ISSUER,
+        algorithms=["HS256"]
+    )

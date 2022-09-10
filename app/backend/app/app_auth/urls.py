@@ -6,7 +6,6 @@ from app_auth import views
 
 
 router = DefaultRouter()
-#router.register("token", views.AuthTokenViewSet, basename="token")
 
 urlpatterns = [
     path("token/", views.AuthTokenAPIView.as_view()),

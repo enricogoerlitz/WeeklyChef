@@ -1,4 +1,3 @@
-from rest_framework.decorators import action
 from rest_framework.views import Request, Response, APIView
 
 from djdevted import response as res
@@ -14,8 +13,11 @@ class AuthTokenAPIView(APIView):
     
     def token(self, request: Request, *args, **kwargs) -> Response:
         """Handle generating and returning jwt token"""
-        return Response({"url": request.path})
+        return res.success({"url": request.path})
 
     def refresh(self, request: Request, *args, **kwargs) -> Response:
-        """Handle generating an new access token when the refresh token is valid"""
-        return Response({"url": request.path})
+        """
+        Handle generating an new access token
+        when the refresh token is valid
+        """
+        return res.success({"url": request.path})
