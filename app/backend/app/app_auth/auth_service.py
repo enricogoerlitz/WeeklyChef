@@ -1,7 +1,13 @@
 from datetime import datetime, timezone, timedelta
 from typing import Union
 
+from django.core.exceptions import ObjectDoesNotExist
+
+from rest_framework.request import Request
+
 from app import settings
+from core.serializers import UserPostSerializer
+from core.models import User
 
 import jwt
 
@@ -9,10 +15,64 @@ import jwt
 EXP_DURATION = {"days": 30}
 
 
-# login/register in serializer und APIView
+def register_user(request: Request) -> dict:
+    """
+    Handle register user
+    Raises Value error if serializing failed
+    """
+    serializer = UserPostSerializer(data=request.data)
+    if not serializer.is_valid():
+        raise ValueError(serializer.errors)
+
+    created_user: User = User.objects.create_user(
+        **serializer.data,
+        password=request.data.get("password")
+    )
+
+    return _create_access_refresh_token(created_user.id)
 
 
-def create_access_refresh_token(user_id: int) -> dict:
+def login_user(request: Request) -> dict:
+    """
+    Handle user login
+    Raises ValueError
+    """
+    username = request.data.get("username")
+    password = request.data.get("password")
+    
+    if not username:
+        raise ValueError("The username field is required.")
+
+    if not password:
+        raise ValueError("The password field is required.")
+
+    user: User = User.objects.get(username=username)
+    if not user.check_password(password):
+        raise ObjectDoesNotExist()
+
+    return _create_access_refresh_token(user.id)
+
+
+def refresh_token(request: Request) -> dict:
+    """Handle refreshing token"""
+    refresh_token = request.data.get("refresh_token")
+    if not refresh_token:
+        raise ValueError("No refresh token in request body.")
+    
+    decoded_token = decode_token(refresh_token)
+
+    if not decoded_token.get("is_refresh_token"):
+        raise ValueError("The passed token is no refresh token.")
+    
+    user_id = decoded_token.get("user_id")
+
+    if not User.objects.filter(id=user_id).exists():
+        raise ObjectDoesNotExist("The user doesn't exists anymore.")
+
+    return _create_access_refresh_token(user_id)  # type: ignore
+
+
+def _create_access_refresh_token(user_id: int) -> dict:
     """Generates and returns an access and refresh jwt token"""
     data = {"user_id": user_id}
     return {

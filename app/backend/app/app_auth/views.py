@@ -1,6 +1,12 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework.views import Request, Response, APIView
 
+import jwt
+
 from djdevted import response as res
+
+from app_auth import auth_service
 
 
 class AuthTokenAPIView(APIView):
@@ -9,15 +15,48 @@ class AuthTokenAPIView(APIView):
     def post(self, request: Request, *args, **kwargs) -> Response:
         if request.path == "/api/v1/token/refresh/":
             return self.refresh(request, *args, **kwargs)
-        return self.token(request, *args, **kwargs)
+        if request.path == "/api/v1/token/register/":
+            return self.register(request, *args, **kwargs)
+        return self.login(request, *args, **kwargs)
     
-    def token(self, request: Request, *args, **kwargs) -> Response:
-        """Handle generating and returning jwt token"""
-        return res.success({"url": request.path})
+    def login(self, request: Request, *args, **kwargs) -> Response:
+        """Handle user login, generating and returning jwt token"""
+        try:
+            result = auth_service.login_user(request)
+            return res.success(result)
+        except ValueError as exp:
+            return res.error_400_bad_request(exp)
+        except ObjectDoesNotExist:
+            return res.error_403_forbidden("Wrong user data given.")
+        except Exception as exp:
+            return res.error_500_internal_server_error(exp)
 
     def refresh(self, request: Request, *args, **kwargs) -> Response:
         """
         Handle generating an new access token
         when the refresh token is valid
         """
-        return res.success({"url": request.path})
+        try:
+            result = auth_service.refresh_token(request)
+            return res.success(result)
+        except ValueError as exp:
+            return res.error_400_bad_request(exp)
+        except ObjectDoesNotExist as exp:
+            return res.error_400_bad_request(exp)
+        except jwt.InvalidSignatureError:
+            return res.error_401_unauthorized("Invalid Token signature.")
+        except Exception as exp:
+            return res.error_500_internal_server_error(exp)
+    
+    def register(self, request: Request, *args, **kwargs):
+        """
+        Handle user registration and
+        Returns valid access and refresh token
+        """
+        try:
+            result = auth_service.register_user(request)
+            return res.created(result)
+        except ValueError as exp:
+            return res.error_400_bad_request(exp)
+        except Exception as exp:
+            return res.error_500_internal_server_error(exp)

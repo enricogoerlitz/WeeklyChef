@@ -10,5 +10,6 @@ router = DefaultRouter()
 urlpatterns = [
     path("token/", views.AuthTokenAPIView.as_view()),
     path("token/refresh/", views.AuthTokenAPIView.as_view()),
+    path("token/register/", views.AuthTokenAPIView.as_view()),
     path("", include(router.urls))
 ]

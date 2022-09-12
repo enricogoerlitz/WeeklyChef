@@ -2,6 +2,8 @@ from datetime import datetime, timezone, timedelta
 
 from django.test import TestCase
 
+from jwt import ExpiredSignatureError
+
 from app import settings
 from app_auth import auth_service
 from core.tests.test_model_user import setup_user
@@ -66,25 +68,40 @@ class TestAuthService(TestCase):
         self.assertEqual(decoded_token2["data1"], data_dict["data1"])
         self.assertEqual(decoded_token2["data2"], data_dict["data2"])
 
-    def test_decode_token(self):
-        """Test decoding an valid jwt"""
-        pass
-
     def test_decode_token_raises(self):
         """Test failing jwt at invalid signature and expiring"""
-        pass
+        token = auth_service._create_token({"id": 100}, {"seconds": -5})
+
+        with self.assertRaises(ExpiredSignatureError):
+            auth_service.decode_token(token)
 
     def test_create_access_token(self):
         """Should create an valid access"""
-        pass
+        comparing_id = 100
+        access_token = auth_service._create_access_token({"id": comparing_id})
+
+        decoded_token = auth_service.decode_token(access_token)
+
+        self.assertIn("exp", decoded_token)
+        self.assertIn("is_refresh_token", decoded_token)
+        self.assertFalse(decoded_token["is_refresh_token"])
+        self.assertEqual(decoded_token["id"], comparing_id)
 
     def test_create_refresh_token(self):
         """Should create an valid refresh token"""
-        pass
+        comparing_id = 101
+        access_token = auth_service._create_refresh_token({"id": comparing_id})
+
+        decoded_token = auth_service.decode_token(access_token)
+
+        self.assertNotIn("exp", decoded_token)
+        self.assertIn("is_refresh_token", decoded_token)
+        self.assertTrue(decoded_token["is_refresh_token"])
+        self.assertEqual(decoded_token["id"], comparing_id)
 
     def test_create_access_refresh_token(self):
         """Test creating access as well as refresh token"""
-        tokens_response = auth_service.create_access_refresh_token(
+        tokens_response = auth_service._create_access_refresh_token(
             self.user.id
         )
 

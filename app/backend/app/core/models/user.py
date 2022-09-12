@@ -19,6 +19,10 @@ class UserManager(BaseUserManager):
         if " " in username:
             raise ValueError("Whitespaces are not allowed in a username.")
         
+        if not password or len(password) < 5:
+            raise ValueError("User password must have a \
+                             length between 5 and 254 characters")
+
         if email:
             email = self.normalize_email(email)
 
