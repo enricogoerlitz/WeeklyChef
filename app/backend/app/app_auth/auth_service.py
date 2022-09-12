@@ -9,7 +9,7 @@ from app import settings
 from core.serializers import UserPostSerializer
 from core.models import User
 
-import jwt
+import jwt  # type: ignore
 
 
 EXP_DURATION = {"days": 30}

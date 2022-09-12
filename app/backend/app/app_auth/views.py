@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.views import Request, Response, APIView
 
-import jwt
+import jwt  # type: ignore
 
 from djdevted import response as res
 
