@@ -3,7 +3,7 @@ from typing import Union
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from rest_framework.request import Request
+from djdevted.request import IRequest
 
 from app import settings
 from core.serializers import UserPostSerializer
@@ -15,7 +15,7 @@ import jwt  # type: ignore
 EXP_DURATION = {"days": 30}
 
 
-def register_user(request: Request) -> dict:
+def register_user(request: IRequest) -> dict:
     """
     Handle register user
     Raises Value error if serializing failed
@@ -32,7 +32,7 @@ def register_user(request: Request) -> dict:
     return _create_access_refresh_token(created_user.id, created_user.is_staff)
 
 
-def login_user(request: Request) -> dict:
+def login_user(request: IRequest) -> dict:
     """
     Handle user login
     Raises ValueError
@@ -53,7 +53,7 @@ def login_user(request: Request) -> dict:
     return _create_access_refresh_token(user.id, user.is_staff)
 
 
-def refresh_token(request: Request) -> dict:
+def refresh_token(request: IRequest) -> dict:
     """Handle refreshing token"""
     refresh_token = request.data.get("refresh_token")
     if not refresh_token:

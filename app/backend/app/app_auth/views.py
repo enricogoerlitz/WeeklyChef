@@ -1,10 +1,11 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from rest_framework.views import Request, Response, APIView
+from rest_framework.views import Response, APIView
 
 import jwt  # type: ignore
 
 from djdevted import response as res
+from djdevted.request import IRequest
 
 from app_auth import auth_service
 
@@ -16,14 +17,14 @@ class AuthTokenAPIView(APIView):
     Handle logging user in
     """
 
-    def post(self, request: Request, *args, **kwargs) -> Response:
+    def post(self, request: IRequest, *args, **kwargs) -> Response:
         if request.path == "/api/v1/token/refresh/":
             return self.refresh(request, *args, **kwargs)
         if request.path == "/api/v1/token/register/":
             return self.register(request, *args, **kwargs)
         return self.login(request, *args, **kwargs)
     
-    def login(self, request: Request, *args, **kwargs) -> Response:
+    def login(self, request: IRequest, *args, **kwargs) -> Response:
         """Handle user login, generating and returning jwt token"""
         try:
             result = auth_service.login_user(request)
@@ -35,7 +36,7 @@ class AuthTokenAPIView(APIView):
         except Exception as exp:
             return res.error_500_internal_server_error(exp)
 
-    def refresh(self, request: Request, *args, **kwargs) -> Response:
+    def refresh(self, request: IRequest, *args, **kwargs) -> Response:
         """
         Handle generating an new access token
         when the refresh token is valid
@@ -50,7 +51,7 @@ class AuthTokenAPIView(APIView):
         except Exception as exp:
             return res.error_500_internal_server_error(exp)
     
-    def register(self, request: Request, *args, **kwargs):
+    def register(self, request: IRequest, *args, **kwargs):
         """
         Handle user registration and
         Returns valid access and refresh token
