@@ -6,6 +6,7 @@ from jwt import ExpiredSignatureError
 
 from app import settings
 from app_auth import auth_service
+from core import models
 from core.tests.test_model_user import setup_user
 
 
@@ -19,7 +20,7 @@ class TestAuthService(TestCase):
     """Test auth service and jwt token generation/validation"""
 
     def setUp(self):
-        self.user = setup_user()
+        self.user: models.User = setup_user()
     
     def test_create_jwt(self):
         """Test creating jwt"""
@@ -102,7 +103,8 @@ class TestAuthService(TestCase):
     def test_create_access_refresh_token(self):
         """Test creating access as well as refresh token"""
         tokens_response = auth_service._create_access_refresh_token(
-            self.user.id
+            self.user.id,
+            self.user.is_staff
         )
 
         decoded_token = auth_service.decode_token(
@@ -118,6 +120,7 @@ class TestAuthService(TestCase):
         self.assertIn("user_id", decoded_refresh_token)
         self.assertIn("is_refresh_token", decoded_token)
         self.assertIn("is_refresh_token", decoded_refresh_token)
+        self.assertIn("is_staff", decoded_token)
         self.assertIn("creation_date", decoded_token)
         self.assertIn("creation_date", decoded_refresh_token)
         self.assertIn("exp", decoded_token)
@@ -143,6 +146,8 @@ class TestAuthService(TestCase):
         
         self.assertEqual(decoded_token["is_refresh_token"], False)
         self.assertEqual(decoded_refresh_token["is_refresh_token"], True)
+
+        self.assertFalse(decoded_token["is_staff"])
         
         self.assertEqual(decoded_token["iss"], settings.JWT_ISSUER)
         self.assertEqual(decoded_refresh_token["iss"], settings.JWT_ISSUER)

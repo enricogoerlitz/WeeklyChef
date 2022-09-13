@@ -15,7 +15,7 @@ class AuthTokenAPIView(APIView):
     Handle register user
     Handle logging user in
     """
-    
+
     def post(self, request: Request, *args, **kwargs) -> Response:
         if request.path == "/api/v1/token/refresh/":
             return self.refresh(request, *args, **kwargs)

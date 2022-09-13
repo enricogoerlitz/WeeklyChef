@@ -29,7 +29,7 @@ def register_user(request: Request) -> dict:
         password=request.data.get("password")
     )
 
-    return _create_access_refresh_token(created_user.id)
+    return _create_access_refresh_token(created_user.id, created_user.is_staff)
 
 
 def login_user(request: Request) -> dict:
@@ -50,7 +50,7 @@ def login_user(request: Request) -> dict:
     if not user.check_password(password):
         raise ObjectDoesNotExist()
 
-    return _create_access_refresh_token(user.id)
+    return _create_access_refresh_token(user.id, user.is_staff)
 
 
 def refresh_token(request: Request) -> dict:
@@ -65,19 +65,18 @@ def refresh_token(request: Request) -> dict:
         raise ValueError("The passed token is no refresh token.")
     
     user_id = decoded_token.get("user_id")
+    user: User = User.objects.get(id=user_id)
 
-    if not User.objects.filter(id=user_id).exists():
-        raise ObjectDoesNotExist("The user doesn't exists anymore.")
-
-    return _create_access_refresh_token(user_id)  # type: ignore
+    return _create_access_refresh_token(user.id, user.is_staff)
 
 
-def _create_access_refresh_token(user_id: int) -> dict:
+def _create_access_refresh_token(user_id: int, is_staff: bool) -> dict:
     """Generates and returns an access and refresh jwt token"""
-    data = {"user_id": user_id}
+    refresh_token_data = {"user_id": user_id}
+    access_token_data = refresh_token_data | {"is_staff": is_staff}
     return {
-        "token": _create_access_token(data),
-        "refresh_token": _create_refresh_token(data)
+        "token": _create_access_token(access_token_data),
+        "refresh_token": _create_refresh_token(refresh_token_data)
     }
 
 
