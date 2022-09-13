@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 from django.test import TestCase
 
-from jwt import ExpiredSignatureError
+from jwt import ExpiredSignatureError  # type: ignore
 
 from app import settings
 from app_auth import auth_service

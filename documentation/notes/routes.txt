@@ -1,48 +1,17 @@
-ROUTE NOTES
+ROUTE NOTES [!REORDER!]
 
 AUTH:
 POST:
 $auth = [register, login, refresh]
 /api/v1/token/{auth}
 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+Unit:                           ViewSet | DELETE only is_staff | /api/v1/unit/
+Tag:                            ViewSet | DELETE only is_staff
+Watchlist:                      ViewSet | CRUD only is_staff or is_me
+DayTime:                        ViewSet | DELETE only is_staff
 
-USER
-CRUD -> ViewSet -> /api/v1/user/
-GET ViewSet
-[is_staff]
-/api/v1/user/                                       # list of users
-/api/v1/user/{id}                                   # specific user
-/api/v1/user/?id=list                               # list of users (filter?)
-
-UPDATE/DELETE -> is_staff or is_me
-    -> on update -> new JWT tokens! (is_staff could change)
-
-# reporting -> APIView
-GET APIView
-/api/v1/user/me/                                    # return me as object
-/api/v1/user/me/watchlists/                         # list of user watchlists
-/api/v1/user/me/favorite-recipes/                   # list of user recipe favorites
-/api/v1/user/me/favorite-foodshop/                  # specific foodshop
-/api/v1/user/me/cart/                               # cart of the user [full joined]
-/api/v1/user/me/cart/count/                         # Current !is_done count
-
-
-RECIPE
-CRUD -> ViewSet -> /api/v1/recipe/
-/api/v1/recipe/
-/api/v1/recipe/{id}                                 # Full joined
-/api/v1/recipe/?id=list?details=1|0                 # details=1|true -> full joined
-RecipeImage: /api/v1/recipe/upload-image (to -> /api/v1/recipe/)
-
-POST
-!with ingredient and tag ids!
-
-UPDATE/DELETE -> is_staff or is_me
-
-GET APIView
-Filter in all columns (also the related!)
-/api/v1/recipe/search/?search&?details=1|0
-
+----------------------------------------------------------------------------------------------------------------------------------------------------
 
 INGREDIENT
 CRUD -> ViewSet -> /api/v1/ingredient/
@@ -78,10 +47,35 @@ CRUD -> ViewSet -> /api/v1/cart/
 /api/v1/cart/{id}                                   # Full joined
 
 UPDATE/DELETE -> is_staff or is_me
+USER
+CRUD -> ViewSet -> /api/v1/user/
+GET ViewSet
+[is_staff]
+/api/v1/user/                                       # list of users
+/api/v1/user/{id}                                   # specific user
+/api/v1/user/?id=list                               # list of users (filter?)
+
+UPDATE/DELETE -> is_staff or is_me
+    -> on update -> new JWT tokens! (is_staff could change)
 
 
-----------------------------------------------------------------------------------------------------------
+RECIPE
+CRUD -> ViewSet -> /api/v1/recipe/
+/api/v1/recipe/
+/api/v1/recipe/{id}                                 # Full joined
+/api/v1/recipe/?id=list?details=1|0                 # details=1|true -> full joined
+RecipeImage: /api/v1/recipe/upload-image (to -> /api/v1/recipe/)
 
+POST
+!with ingredient and tag ids!
+
+UPDATE/DELETE -> is_staff or is_me
+
+GET APIView
+Filter in all columns (also the related!)
+/api/v1/recipe/search/?search&?details=1|0
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
 
 FoodShopArea:                   ViewSet | DELETE only is_staff | /api/v1/foodshop-area/
 FoodShopAreaPart:               ViewSet | DELETE only is_staff | /api/v1/foodshop-area-part/ 
@@ -89,15 +83,22 @@ FoodShopAreaPartIngredient:     ViewSet | DELETE only is_staff | /api/v1/foodsho
 PreferredFoodShop:              ViewSet | CRUD only is_staff or is_me | /api/v1/favorite-shop/
 
 RecipeIngredient:               ViewSet | CRUD only is_staff or is_me | /api/v1/recipe-ingredient/
-Unit:                           ViewSet | DELETE only is_staff | /api/v1/unit/
 RecipeTag:                      ViewSet | CRUD only is_staff or is_me
-Tag:                            ViewSet | DELETE only is_staff
 
 RecipeFavorite:                 ViewSet | CRUD only is_staff or is_me
 RecipeWatchlist:                ViewSet | CRUD only is_staff or is_me
-Watchlist:                      ViewSet | CRUD only is_staff or is_me
 RecipeRating:                   ViewSet | CRUD only is_staff or is_me
 
 RecipeCart:                     ViewSet | POST with ingredients | CRUD only is_staff or is_me
-DayTime:                        ViewSet | DELETE only is_staff
 RecipeCartIngredient:           ViewSet | CRUD only is_staff or is_me
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+# reporting -> APIView
+GET APIView
+/api/v1/user/me/                                    # return me as object
+/api/v1/user/me/watchlists/                         # list of user watchlists
+/api/v1/user/me/favorite-recipes/                   # list of user recipe favorites
+/api/v1/user/me/favorite-foodshop/                  # specific foodshop
+/api/v1/user/me/cart/                               # cart of the user [full joined]
+/api/v1/user/me/cart/count/                         # Current !is_done count
