@@ -10,7 +10,11 @@ from app_auth import auth_service
 
 
 class AuthTokenAPIView(APIView):
-    """Handle JWT generating and refreshing tokens"""
+    """
+    Handle JWT generating and refreshing tokens
+    Handle register user
+    Handle logging user in
+    """
     
     def post(self, request: Request, *args, **kwargs) -> Response:
         if request.path == "/api/v1/token/refresh/":
@@ -39,9 +43,7 @@ class AuthTokenAPIView(APIView):
         try:
             result = auth_service.refresh_token(request)
             return res.success(result)
-        except ValueError as exp:
-            return res.error_400_bad_request(exp)
-        except ObjectDoesNotExist as exp:
+        except (ValueError, ObjectDoesNotExist) as exp:
             return res.error_400_bad_request(exp)
         except jwt.InvalidSignatureError:
             return res.error_401_unauthorized("Invalid Token signature.")

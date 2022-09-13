@@ -7,6 +7,7 @@ from app_auth import views
 
 router = DefaultRouter()
 
+# .../<int:id>/... # decorator: get_id -> if id=None -> Request.user_id
 urlpatterns = [
     path("token/", views.AuthTokenAPIView.as_view()),
     path("token/refresh/", views.AuthTokenAPIView.as_view()),
