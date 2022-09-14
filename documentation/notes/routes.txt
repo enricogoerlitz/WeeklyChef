@@ -6,6 +6,7 @@ $auth = [register, login, refresh]
 /api/v1/token/{auth}
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 Unit:                           ViewSet | DELETE only is_staff | /api/v1/unit/
 Tag:                            ViewSet | DELETE only is_staff
 Watchlist:                      ViewSet | CRUD only is_staff or is_me
@@ -75,7 +76,7 @@ GET APIView
 Filter in all columns (also the related!)
 /api/v1/recipe/search/?search&?details=1|0
 
-----------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 
 FoodShopArea:                   ViewSet | DELETE only is_staff | /api/v1/foodshop-area/
 FoodShopAreaPart:               ViewSet | DELETE only is_staff | /api/v1/foodshop-area-part/ 
@@ -92,7 +93,7 @@ RecipeRating:                   ViewSet | CRUD only is_staff or is_me
 RecipeCart:                     ViewSet | POST with ingredients | CRUD only is_staff or is_me
 RecipeCartIngredient:           ViewSet | CRUD only is_staff or is_me
 
-----------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 
 # reporting -> APIView
 GET APIView

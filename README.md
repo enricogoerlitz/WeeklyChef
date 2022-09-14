@@ -6,5 +6,6 @@
 
 - custom user auth service
 - custom jwt service
+- existing db
 - TDD
 - ...

@@ -7,8 +7,7 @@ from rest_framework.request import Request
 class IRequest(Request):
     """Dummy request interface for typing intellisense"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
         self.path: str
         self.META: dict
         self.method: str

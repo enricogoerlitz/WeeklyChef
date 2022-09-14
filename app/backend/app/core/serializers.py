@@ -4,13 +4,13 @@ from core.models import User
 
 
 class UserPostSerializer(serializers.ModelSerializer):
-    """Serializer for user model post requerst"""
+    """Serializer for user model post request"""
 
     class Meta:
         model = User
         fields = [
             "username",
-            "email"
+            "email",
         ]
 
         extra_kwargs = {
@@ -23,8 +23,4 @@ class UserGetSerializer(UserPostSerializer):
     """Serializer for user model get request"""
 
     class Meta(UserPostSerializer.Meta):
-        fields = [
-            "username",
-            "email",
-            "is_staff"
-        ]
+        fields = UserPostSerializer.Meta.fields + ["id", "is_staff"]
