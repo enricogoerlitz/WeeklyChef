@@ -1,6 +1,7 @@
 from django.db import models
 
-from core.models import User, Ingredient, FoodShop
+from core.models import User, Ingredient
+from core.models.food_shop import FoodShop
 
 
 class DayTime(models.Model):

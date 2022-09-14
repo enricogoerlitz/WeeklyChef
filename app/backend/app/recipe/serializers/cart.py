@@ -4,7 +4,7 @@ Cart model serializers
 from rest_framework.serializers import ModelSerializer
 
 from core import models
-from core.serializers import UserGetSerializer
+from core.serializers import UserGetSerializer  # noqa
 
 
 class DayTimeSerializer(ModelSerializer):
@@ -17,4 +17,3 @@ class DayTimeSerializer(ModelSerializer):
         extra_kwargs = {
             "day_time_name": {"min_length": 4}
         }
-
