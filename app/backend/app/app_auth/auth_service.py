@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from djdevted.request import IRequest
 
 from app import settings
-from core.serializers import UserPostSerializer
+from recipe.serializers import UserPostSerializer
 from core.models import User
 
 import jwt  # type: ignore

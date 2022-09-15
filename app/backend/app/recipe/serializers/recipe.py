@@ -4,7 +4,7 @@ Recipe model serializers
 from rest_framework.serializers import ModelSerializer
 
 from core import models
-from core.serializers import UserGetSerializer
+from recipe.serializers import UserGetSerializer
 
 
 class UnitSerializer(ModelSerializer):
