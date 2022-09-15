@@ -159,6 +159,17 @@ class RecipeWatchlistSerializer(ModelSerializer):
         fields = ["id", "watchlist", "recipe"]
 
 
+"""
+TEST:
+Composite pk Serializer -> inherit from and
+super().__init__(key1="", key2="")
+-> set data
+class RecipeDataSerializer(CompositeKeySerializer):
+    def __init__(self):
+        super().__init__(key1="", key2="", ...)
+"""
+
+
 class RecipeDataSerializer:
     """TEST: recipe with ingredients"""
 

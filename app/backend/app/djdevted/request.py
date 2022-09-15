@@ -6,11 +6,11 @@ from rest_framework.request import Request
 
 class IRequest(Request):
     """Dummy request interface for typing intellisense"""
+    path: str
+    META: dict
+    method: str
 
     def __init__(self):
-        self.path: str
-        self.META: dict
-        self.method: str
 
         raise TypeError(
             "Don't create an instance of the object. \

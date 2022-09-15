@@ -1,15 +1,18 @@
 """
 Module for custom jwt authentication classes
 """
+from typing import Union
+
 from rest_framework.authentication import BaseAuthentication
 
 from app_auth import auth_service
+from djdevted.request import IRequest
 
 
 class JWTAuthUser:
     """JWT Auth user in request object"""
 
-    def __init__(self, id: int, is_staff: bool) -> None:
+    def __init__(self, id: Union[None, int], is_staff: Union[None, bool]) -> None:
         self.id = id
         self.is_staff = is_staff
         self.is_authenticated = True if id else False
@@ -21,8 +24,8 @@ class JWTAuthUser:
 class JWTAuthentication(BaseAuthentication):
     """Class for set needed data to the request object"""
 
-    def authenticate(self, request):
-        BEARER_PREFIX = "bearer "
+    def authenticate(self, request: IRequest):
+        BEARER_PREFIX = "Bearer "
         try:
             token: str = request.META["HTTP_AUTHORIZATION"]
             token = token.replace(BEARER_PREFIX, "")
