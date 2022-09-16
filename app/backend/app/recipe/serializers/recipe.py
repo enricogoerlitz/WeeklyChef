@@ -31,6 +31,20 @@ class TagSerializer(ModelSerializer):
         }
 
 
+class IngredientPostSerializer(ModelSerializer):
+    """Serialize ingredient model"""
+
+    class Meta:
+        model = models.Ingredient
+        fields = "__all__"
+        extra_kwargs = {
+            "ingredient_name": {"min_length": 3},
+            "default_price": {"min_value": 0},
+            "ingredient_display_name": {"min_length": 3},
+            "quantity_per_unit": {"min_value": 0},
+        }
+
+
 class IngredientSerializer(ModelSerializer):
     """Serialize ingredient model"""
     unit = UnitSerializer(many=False, required=False)
@@ -43,12 +57,12 @@ class IngredientSerializer(ModelSerializer):
             "unit", "is_spices", "search_description"
         ]
         read_only_fields = ["id"]
-        extra_kwargs = {
-            "ingredient_name": {"min_length": 3},
-            "default_price": {"min_value": 0},
-            "ingredient_display_name": {"min_length": 3},
-            "quantity_per_unit": {"min_value": 0},
-        }
+        # extra_kwargs = {
+        #     "ingredient_name": {"min_length": 3},
+        #     "default_price": {"min_value": 0},
+        #     "ingredient_display_name": {"min_length": 3},
+        #     "quantity_per_unit": {"min_value": 0},
+        # }
 
 
 class RecipeSerializer(ModelSerializer):

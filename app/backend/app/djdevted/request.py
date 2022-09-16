@@ -10,8 +10,7 @@ class IRequest(Request):
     META: dict
     method: str
 
-    def __init__(self):
-
+    def __init__(self) -> None:
         raise TypeError(
             "Don't create an instance of the object. \
             This is just an dummy object for a typing intellisense"

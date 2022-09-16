@@ -6,12 +6,63 @@ from rest_framework.permissions import IsAuthenticated
 
 from app_auth.authentication import JWTAuthentication
 from recipe import serializers
-from core.models import Unit
+from core.models import (
+    Unit,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    Tag,
+    RecipeFavorite,
+)
+from recipe.permissions.recipe import IsStaff, OnDeleteIsStaff
 
 
-class UnitViewSet(ModelViewSet):
-    """Endpoints for unit"""
-    serializer_class = serializers.UnitSerializer
+class BaseAuthModelViewSet(ModelViewSet):
+    """Base model for recipe endpoint authentication"""
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+
+
+class UnitViewSet(BaseAuthModelViewSet):
+    """Endpoints for unit"""
+    serializer_class = serializers.UnitSerializer
     queryset = Unit.objects.all()
+    permission_classes = [IsAuthenticated, IsStaff]
+
+
+class TagViewSet(BaseAuthModelViewSet):
+    """Endpoints for tag"""
+    serializer_class = serializers.TagSerializer
+    queryset = Tag.objects.all()
+    permission_classes = [IsAuthenticated, OnDeleteIsStaff]
+
+
+class IngredientViewSet(BaseAuthModelViewSet):
+    """Endpoints for tag"""
+    serializer_class = serializers.IngredientSerializer
+    queryset = Ingredient.objects.all()
+    permission_classes = [IsAuthenticated, OnDeleteIsStaff]
+
+
+class RecipeViewSet(BaseAuthModelViewSet):
+    """Endpoints for tag"""
+    serializer_class = serializers.RecipeSerializer
+    queryset = Recipe.objects.all()
+    # def get_serializer_class() -> if action...
+    # ... self.get_serializer()
+
+
+class RecipeFavoriteViewSet(BaseAuthModelViewSet):
+    """Endpoints for tag"""
+    serializer_class = serializers.RecipeFavoriteSerializer
+    queryset = RecipeFavorite.objects.all()
+    # def get_serializer_class() -> if action...
+    # ... self.get_serializer()
+
+
+class RecipeIngredientViewSet(BaseAuthModelViewSet):
+    """Endpoints for tag"""
+    serializer_class = serializers.RecipeIngredientSerializer
+    queryset = RecipeIngredient.objects.all()
+    # def get_serializer_class() -> if action...
+    # ... self.get_serializer()

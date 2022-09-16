@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Entrypoint for command"""
-        self.stdout.write("Waiting for database...")
+        self.stdout.write("\nWaiting for database...")
         db_up = False
         while not db_up:
             try:

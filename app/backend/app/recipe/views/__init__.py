@@ -1,5 +1,10 @@
 # mypy: ignore-errors
 
 from .recipe import (
-    UnitViewSet
+    TagViewSet,
+    UnitViewSet,
+    IngredientViewSet,
+    RecipeViewSet,
+    RecipeFavoriteViewSet,
+    RecipeIngredientViewSet
 )

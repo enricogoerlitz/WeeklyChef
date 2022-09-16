@@ -12,7 +12,10 @@ from djdevted.request import IRequest
 class JWTAuthUser:
     """JWT Auth user in request object"""
 
-    def __init__(self, id: Union[None, int], is_staff: Union[None, bool]) -> None:
+    def __init__(
+        self, id: Union[None, int],
+        is_staff: Union[None, bool]
+    ) -> None:
         self.id = id
         self.is_staff = is_staff
         self.is_authenticated = True if id else False
