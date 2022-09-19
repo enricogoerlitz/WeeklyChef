@@ -9,7 +9,7 @@ from djdevted.request import IRequest
 
 
 def is_owner_or_staff(request: IRequest, obj: Any) -> bool:
-    return obj.user == request.user.id or request.user.is_staff
+    return obj.user.id == request.user.id or request.user.is_staff
 
 
 class IsStaff(BasePermission):
@@ -23,9 +23,6 @@ class IsOwnerOrStaff(BasePermission):
     """Check that the request user is the owner of staff"""
 
     def has_object_permission(self, request: IRequest, view: Any, obj: Any):
-        # user: JWTAuthUser = request.user
-        # obj.user == user.id or user.is_staff
-        # TODO: test only obj.user/obj.user.id
         return is_owner_or_staff(request, obj)
 
 

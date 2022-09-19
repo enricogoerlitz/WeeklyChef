@@ -6,6 +6,7 @@ from .recipe import (
     UnitSerializer,
     RecipeSerializer,
     RecipeTagSerializer,
+    IngredientDetailSerializer,
     IngredientSerializer,
     RecipeDataSerializer,
     RecipeDetailSerializer,
@@ -28,6 +29,6 @@ from .food_shop import (
     FoodShopAreaPartIngredientDetailSerializer,
     FoodShopAreaPartIngredientSerializer,
     FoodShopAreaPartSerializer,
-    IngredientSerializer,
+    IngredientDetailSerializer,
     PreferredUserFoodShopSerializer
 )

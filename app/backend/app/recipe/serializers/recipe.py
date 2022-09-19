@@ -24,30 +24,15 @@ class TagSerializer(ModelSerializer):
 
     class Meta:
         model = models.Tag
-        fields = "__all__"
+        fields = ["id", "tag_name"]
         read_only_fields = ["id"]
         extra_kwargs = {
             "tag_name": {"min_length": 2}
         }
 
 
-class IngredientPostSerializer(ModelSerializer):
-    """Serialize ingredient model"""
-
-    class Meta:
-        model = models.Ingredient
-        fields = "__all__"
-        extra_kwargs = {
-            "ingredient_name": {"min_length": 3},
-            "default_price": {"min_value": 0},
-            "ingredient_display_name": {"min_length": 3},
-            "quantity_per_unit": {"min_value": 0},
-        }
-
-
 class IngredientSerializer(ModelSerializer):
     """Serialize ingredient model"""
-    unit = UnitSerializer(many=False, required=False)
 
     class Meta:
         model = models.Ingredient
@@ -57,12 +42,17 @@ class IngredientSerializer(ModelSerializer):
             "unit", "is_spices", "search_description"
         ]
         read_only_fields = ["id"]
-        # extra_kwargs = {
-        #     "ingredient_name": {"min_length": 3},
-        #     "default_price": {"min_value": 0},
-        #     "ingredient_display_name": {"min_length": 3},
-        #     "quantity_per_unit": {"min_value": 0},
-        # }
+        extra_kwargs = {
+            "ingredient_name": {"min_length": 3},
+            "default_price": {"min_value": 0},
+            "ingredient_display_name": {"min_length": 3},
+            "quantity_per_unit": {"min_value": 0},
+        }
+
+
+class IngredientDetailSerializer(IngredientSerializer):
+    """Serialize ingredient model"""
+    unit = UnitSerializer(many=False, required=False)
 
 
 class RecipeSerializer(ModelSerializer):
@@ -118,7 +108,7 @@ class RecipeIngredientSerializer(ModelSerializer):
 class RecipeIngredientDetailSerializer(RecipeIngredientSerializer):
     """Serialize recipe ingredient model with details"""
     recipe = RecipeDetailSerializer(many=False)
-    ingredient = IngredientSerializer(many=False)
+    ingredient = IngredientDetailSerializer(many=False)
 
 
 class RecipeRatingSerializer(ModelSerializer):

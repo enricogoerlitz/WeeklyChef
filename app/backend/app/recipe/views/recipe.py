@@ -14,7 +14,11 @@ from core.models import (
     Tag,
     RecipeFavorite,
 )
-from recipe.permissions.recipe import IsStaff, OnDeleteIsStaff
+from recipe.permissions.recipe import (
+    IsStaff,
+    OnDeleteIsStaff,
+    IsOwnerOrStaff,
+)
 
 
 class BaseAuthModelViewSet(ModelViewSet):
@@ -39,15 +43,21 @@ class TagViewSet(BaseAuthModelViewSet):
 
 class IngredientViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
-    serializer_class = serializers.IngredientSerializer
+    serializer_class = serializers.IngredientDetailSerializer
     queryset = Ingredient.objects.all()
     permission_classes = [IsAuthenticated, OnDeleteIsStaff]
+
+    def get_serializer_class(self):
+        if self.action in ["create", "update", "partial_update"]:
+            return serializers.IngredientSerializer
+        return self.serializer_class
 
 
 class RecipeViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
+    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
     # def get_serializer_class() -> if action...
     # ... self.get_serializer()
 

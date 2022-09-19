@@ -4,7 +4,7 @@ FoodShop model serializers
 from rest_framework.serializers import ModelSerializer
 
 from core import models
-from recipe.serializers.recipe import IngredientSerializer
+from recipe.serializers.recipe import IngredientDetailSerializer
 
 
 class FoodShopSerializer(ModelSerializer):
@@ -96,7 +96,7 @@ class FoodShopAreaPartIngredientDetailSerializer(
     Serialize food shop area part ingredient model
     with details
     """
-    ingredient = IngredientSerializer(many=False)
+    ingredient = IngredientDetailSerializer(many=False)
     area_part = FoodShopAreaPartDetailSerializer(many=False)
 
 
