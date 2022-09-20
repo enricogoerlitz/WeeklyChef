@@ -29,7 +29,9 @@ from core.tests.test_model_recipe import (  # noqa
     create_watchlist,
     create_recipe_watchlist
 )
+from core.tests.test_model_user import create_user
 from recipe import serializers
+from recipe.serializers.recipe import RecipeFavoriteSerializer
 from recipe.tests.test_views_user import setup_login
 
 
@@ -624,6 +626,8 @@ class PrivateRecipeApiTests(TestCase):
         #     ],
         #     image: {...}
         # }
+        # usernames = [user.username for user in User.objects.all()]
+        # ^ eg is normal and queryset is iterable
         pass
 
     def test_list(self):
@@ -793,14 +797,35 @@ class PrivateRecipeFavoriteApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = setup_login(self.client)
+        self.user1 = setup_login(self.client)
+        self.user2 = create_user("user2")
+        self.recipe1 = create_recipe(
+            "recipe_fav1",
+            self.user1
+        )
+        self.recipe2 = create_recipe(
+            "recipe_fav2",
+            self.user1
+        )
+        self.recipe_fav = create_recipe_favorite(
+            create_user("dummy_rf"),
+            self.recipe1
+        )
+        self.serializer = RecipeFavoriteSerializer(self.recipe_fav)
 
     def test_retrieve(self):
         """
         Test get model by id
         Only owner or staff
         """
-        pass
+        recipe_fav = create_recipe_favorite(self.user1, self.recipe1)
+        recipe_fav_id = recipe_fav.id
+        serializer = serializers.RecipeFavoriteSerializer(recipe_fav)
+        
+        res = self.client.get(id_url(URL_RECIPE_FAV, recipe_fav_id))
+        
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
 
     def test_retrieve_details(self):
         """Test get model by id only owner or staff"""
@@ -808,7 +833,34 @@ class PrivateRecipeFavoriteApiTests(TestCase):
 
     def test_list(self):
         """Test get all models, only owner or staff"""
-        pass
+        # user2 recipes should not be shown!
+        create_recipe_favorite(
+            self.user2,
+            self.recipe1,
+        ),
+        create_recipe_favorite(
+            self.user2,
+            self.recipe2,
+        ),
+        payload = [
+            create_recipe_favorite(
+                self.user1,
+                self.recipe1,
+            ),
+            create_recipe_favorite(
+                self.user1,
+                self.recipe2,
+            ),
+        ]
+        payload_data = get_payload_data(
+            serializers.RecipeFavoriteSerializer,
+            payload,
+            True
+        )
+        
+        res = self.client.get(URL_RECIPE_FAV)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, payload_data)
 
     def test_list_details(self):
         """Test get all models, only owner or staff"""
@@ -816,39 +868,65 @@ class PrivateRecipeFavoriteApiTests(TestCase):
 
     def test_create(self):
         """Test creating model"""
-        pass
+        payload = {
+            "user": create_user("recipe_fav_user").id,
+            "recipe": self.recipe1.id,
+        }
+        payload_data = get_payload_data(
+            serializers.RecipeFavoriteSerializer,
+            payload
+        )
 
-    def test_patch(self):
-        """Test update model"""
-        pass
+        res = self.client.post(URL_RECIPE_FAV, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    def test_put(self):
-        """Test update model"""
-        pass
+        ingredient = models.RecipeFavorite.objects.get(id=res.data["id"])
+        res_data = serializers.RecipeFavoriteSerializer(ingredient).data
+        del res_data["id"]
+
+        self.assertEqual(payload_data, res_data)
 
     def test_delete(self):
         """Test deleting model, only owner or staff"""
-        pass
+        staff_client = APIClient()
+        user = setup_login(staff_client, username="teddy_auth_rf")
+        recipe_fav = create_recipe_favorite(user, self.recipe1)
+
+        rf_id_url = id_url(URL_RECIPE_FAV, recipe_fav.id)
+        delete_res = staff_client.delete(rf_id_url)
+        is_delete_res = staff_client.get(rf_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve(self):
         """Test failing get not existing model"""
-        pass
+        res = self.client.get(id_url(URL_RECIPE_FAV, 100))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve_unauthorized(self):
         """Test trying getting foreign favorite"""
-        pass
+        denied_client = APIClient()
+        _ = setup_login(denied_client, username="denied_user")
+        
+        res = denied_client.get(id_url(URL_RECIPE_FAV, self.recipe_fav.id))
 
-    def test_fail_list_unauthorized(self):
-        """Test trying getting foreign favorite"""
-        pass
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_fail_create(self):
+    def test_fail_create_duplicate_key(self):
         """Test failing validation. Not creating the object"""
-        pass
+        payload = {**self.serializer.data}
+        res = self.client.post(URL_RECIPE_FAV, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        pass
+        denied_client = APIClient()
+        _ = setup_login(denied_client, username="denied_user")
+        
+        res = denied_client.get(id_url(URL_RECIPE_FAV, self.recipe_fav.id))
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivateRecipeIngredientApiTests(TestCase):
@@ -857,11 +935,27 @@ class PrivateRecipeIngredientApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = setup_login(self.client)
+        self.recipe = create_recipe("ri_recipe1", self.user)
+        self.unit = create_unit("ri_unit")
+        self.recipe_ing = create_recipe_ingredient(
+            self.recipe,
+            create_ingredient(
+                "ing_name_ri",
+                "ing_name_ri",
+                self.unit
+            ),
+            400
+        )
+        self.serializer = serializers.RecipeIngredientSerializer(
+            self.recipe_ing
+        )
 
     def test_retrieve(self):
         """Test get model by id"""
-        # RecipeIngredientDataSerializer
-        pass
+        res = self.client.get(id_url(URL_RECIPE_ING, self.recipe_ing.id))
+        
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, self.serializer.data)
 
     def test_retrieve_details(self):
         """Test get model by id"""
@@ -869,35 +963,76 @@ class PrivateRecipeIngredientApiTests(TestCase):
 
     def test_list(self):
         """Test get all models"""
-        pass
-
-    def test_list_by_recipe_ids(self):
-        """Test get all models filtered by recipe ids"""
-        pass
+        ing1 = create_ingredient(
+            "recipe_ing1_ri",
+            "recipe_ing1_ri",
+            self.unit
+        )
+        ing2 = create_ingredient(
+            "recipe_ing2_ri",
+            "recipe_ing2_ri",
+            self.unit
+        )
+        payload = [
+            self.recipe_ing,
+            create_recipe_ingredient(
+                self.recipe,
+                ing1
+            ),
+            create_recipe_ingredient(
+                self.recipe,
+                ing2
+            ),
+        ]
+        payload_data = get_payload_data(
+            serializers.RecipeIngredientSerializer,
+            payload,
+            True
+        )
+        
+        res = self.client.get(URL_RECIPE_ING)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, payload_data)
 
     def test_list_details(self):
         """Test get all models"""
         pass
 
-    def test_list_details_by_recipe_ids(self):
-        """Test get all models"""
-        pass
-
     def test_create(self):
         """Test creating model"""
-        pass
+        ingredient = create_ingredient(
+            "ing_name1",
+            "ing_name1",
+            self.unit
+        )
+        payload = {
+            "recipe": self.recipe.id,
+            "ingredient": ingredient.id,
+            "unit_quantity": 250
+        }
+        payload_data = get_payload_data(
+            serializers.RecipeIngredientSerializer,
+            payload
+        )
 
-    def test_patch(self):
-        """Test update model, only owner or staff"""
-        pass
+        res = self.client.post(URL_RECIPE_ING, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    def test_put(self):
-        """Test update model, only owner or staff"""
-        pass
+        ingredient = models.RecipeIngredient.objects.get(id=res.data["id"])
+        res_data = serializers.RecipeIngredientSerializer(ingredient).data
+        del res_data["id"]
+
+        self.assertEqual(payload_data, res_data)
 
     def test_delete(self):
         """Test deleting model, only owner or staff"""
-        pass
+        rf_id_url = id_url(URL_RECIPE_ING, self.recipe_ing.id)
+        delete_res = self.client.delete(rf_id_url)
+        is_delete_res = self.client.get(rf_id_url)
+        print(self.recipe_ing.id)
+        print(delete_res.data)
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve(self):
         """Test failing get not existing model"""

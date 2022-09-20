@@ -88,7 +88,7 @@ class Recipe(models.Model):
         db_table = 'recipe'
 
     def __str__(self) -> str:
-        return f"{self.id} | {self.recipe_name}"
+        return f"{self.id} | {self.recipe_name} | user: {self.user}"
 
 
 class RecipeFavorite(models.Model):
