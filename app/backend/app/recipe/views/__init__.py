@@ -6,5 +6,9 @@ from .recipe import (
     IngredientViewSet,
     RecipeViewSet,
     RecipeFavoriteViewSet,
-    RecipeIngredientViewSet
+    RecipeIngredientViewSet,
+    RecipeRatingViewSet,
+    RecipeTagViewSet,
+    WatchlistViewSet,
+    RecipeWatchlistViewSet,
 )

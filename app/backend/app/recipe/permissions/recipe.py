@@ -9,6 +9,7 @@ from rest_framework.permissions import BasePermission
 
 from core import models
 from djdevted import response as res
+from djdevted.exceptions import FieldRequiredException
 from djdevted.request import IRequest
 
 
@@ -55,67 +56,67 @@ class OnDeleteIsStaff(BasePermission):
         return True
 
 
-# class OnCreateOrUpdateIsRecipeOwnerOrStaff(BasePermission):
-#     """Check if the user is recipe owner or staff"""
-
-#     def has_permission(self, request: IRequest, view):
-#         if request.method == "GET": return True
-#         recipe_id: int = request.data["recipe"]
-        
-
 def is_recipe_owner_or_staff(func: Callable) -> Callable:
     """Checks whether the user is the recipe creator"""
     def wrapper(view: Any, request: IRequest, *args, **kwargs):
-        if request.method == "DELETE":
-            recipe_id = kwargs.get("pk")
-            print(recipe_id)
-        else:
-            recipe_id = request.data.get("recipe")
-            
-        if not recipe_id:
-            err_msg = "The field 'recipe' is required."
-            return res.error_400_bad_request(err_msg)
-
-        if request.user.is_staff:
-            return func(view, request, *args, **kwargs)
-
         try:
-            recipe: models.Recipe = models.Recipe.objects.get(id=recipe_id)
+            recipe = _get_recipe(request, *args, **kwargs)
+            if request.user.is_staff:
+                return func(view, request, *args, **kwargs)
+
             if recipe.user.id == request.user.id:
                 return func(view, request, *args, **kwargs)
             
-            err_msg = """Only the recipe creator can
-                         modify the recipe ingredients."""
-            return res.error_400_bad_request(err_msg)
-        except ObjectDoesNotExist as exp:
+            err_msg = "Only the recipe creator can " + \
+                      "modify the recipe ingredients."
+            return res.error_403_forbidden(err_msg)
+        except (ObjectDoesNotExist, FieldRequiredException) as exp:
             return res.error_400_bad_request(exp)
-        except Exception as exp:
+        except (Exception, NotImplementedError) as exp:
             return res.error_500_internal_server_error(exp)
     return wrapper
 
 
-# get recipe here!!!
-def _get_recipe_id():
-    pass
 def _get_recipe(
     request: IRequest,
     *args,
     **kwargs
-) -> Union[None, int]:
-    if request.method == "POST":
-        return request.data.get("recipe")
+) -> models.Recipe:
+    """
+    Fetch the requested recipe
+    Raises FieldRequiredException
+    Raises ObjectDoesNotExit
+    """
+    recipe_id = _get_recipe_id(request, *args, **kwargs)
+    if not recipe_id:
+        raise FieldRequiredException("The field 'recipe' is required.")
+    return models.Recipe.objects.get(id=recipe_id)
 
-    req_path = request.path
-    if "" in req_path:
-        pass
-    elif "" in req_path:
-        pass
-    return None
 
-
-def _get_recipe_id_recipe_ingredient_path(
+def _get_recipe_id(
     request: IRequest,
     *args,
     **kwargs
 ) -> Union[None, int]:
-    pass
+    """
+    Investigates the recipe id
+    Raises ObjectDoesNotExit
+    Raises NotImplementedError
+    """
+    if request.method == "POST":
+        return request.data.get("recipe")
+    if request.method == "GET":
+        raise NotImplementedError("GET-Method not implemented.")
+
+    pk: int = kwargs.get("pk")  # type: ignore
+    req_path = request.path
+
+    if "recipe-ingredient" in req_path:
+        return models.RecipeIngredient.objects.get(
+            id=pk
+        ).recipe.id
+    elif "recipe-tag" in req_path:
+        return models.RecipeTag.objects.get(
+            id=pk
+        ).recipe.id
+    return None

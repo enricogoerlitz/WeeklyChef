@@ -12,6 +12,10 @@ router.register("ingredient", views.IngredientViewSet)
 router.register("recipe", views.RecipeViewSet)
 router.register("recipe-favorite", views.RecipeFavoriteViewSet)
 router.register("recipe-ingredient", views.RecipeIngredientViewSet)
+router.register("recipe-rating", views.RecipeRatingViewSet)
+router.register("recipe-tag", views.RecipeTagViewSet)
+router.register("watchlist", views.WatchlistViewSet)
+router.register("recipe-watchlist", views.RecipeWatchlistViewSet)
 
 # .../<int:id>/... # decorator: get_id -> if id=None -> Request.user_id
 

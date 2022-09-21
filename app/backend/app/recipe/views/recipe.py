@@ -10,14 +10,7 @@ from app_auth.authentication import JWTAuthentication
 from djdevted.request import IRequest
 from djdevted import response as res
 from recipe import serializers
-from core.models import (
-    Unit,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    Tag,
-    RecipeFavorite,
-)
+from core import models
 from recipe.permissions.recipe import (
     IsStaff,
     OnDeleteIsStaff,
@@ -46,21 +39,21 @@ class CRDModelViewSet(
 class UnitViewSet(BaseAuthModelViewSet):
     """Endpoints for unit"""
     serializer_class = serializers.UnitSerializer
-    queryset = Unit.objects.all()
+    queryset = models.Unit.objects.all()
     permission_classes = [IsAuthenticated, IsStaff]
 
 
 class TagViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.TagSerializer
-    queryset = Tag.objects.all()
+    queryset = models.Tag.objects.all()
     permission_classes = [IsAuthenticated, OnDeleteIsStaff]
 
 
 class IngredientViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.IngredientDetailSerializer
-    queryset = Ingredient.objects.all()
+    queryset = models.Ingredient.objects.all()
     permission_classes = [IsAuthenticated, OnDeleteIsStaff]
 
     def get_serializer_class(self):
@@ -72,19 +65,15 @@ class IngredientViewSet(BaseAuthModelViewSet):
 class RecipeViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.RecipeSerializer
-    queryset = Recipe.objects.all()
+    queryset = models.Recipe.objects.all()
     permission_classes = [IsAuthenticated, IsOwnerOrStaff]
-    # def get_serializer_class() -> if action...
-    # ... self.get_serializer()
 
 
 class RecipeFavoriteViewSet(CRDModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.RecipeFavoriteSerializer
-    queryset = RecipeFavorite.objects.all()
+    queryset = models.RecipeFavorite.objects.all()
     permission_classes = [IsAuthenticated, IsOwnerOrStaff]
-    # def get_serializer_class() -> if action...
-    # ... self.get_serializer()
 
     def list(self, request: IRequest):
         qs = self.queryset.filter(user=request.user.id)
@@ -96,13 +85,11 @@ class RecipeFavoriteViewSet(CRDModelViewSet):
         return res.success(serializer.data)
         
 
-class RecipeIngredientViewSet(CRDModelViewSet):
+class RecipeIngredientViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.RecipeIngredientSerializer
-    queryset = RecipeIngredient.objects.all()
+    queryset = models.RecipeIngredient.objects.all()
     permission_classes = [IsAuthenticated]
-    # def get_serializer_class() -> if action...
-    # ... self.get_serializer()
 
     @is_recipe_owner_or_staff
     def create(self, request, *args, **kwargs):
@@ -111,3 +98,47 @@ class RecipeIngredientViewSet(CRDModelViewSet):
     @is_recipe_owner_or_staff
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+    
+    @is_recipe_owner_or_staff
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @is_recipe_owner_or_staff
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+
+class RecipeRatingViewSet(BaseAuthModelViewSet):
+    """Endpoints for recipe rating"""
+    serializer_class = serializers.RecipeRatingSerializer
+    queryset = models.RecipeRating.objects.all()
+    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+
+
+class RecipeTagViewSet(CRDModelViewSet):
+    """Endpoints for recipe tag"""
+    serializer_class = serializers.RecipeTagSerializer
+    queryset = models.RecipeTag.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    @is_recipe_owner_or_staff
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @is_recipe_owner_or_staff
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+
+class WatchlistViewSet(BaseAuthModelViewSet):
+    """Endpoints for watchlist"""
+    serializer_class = serializers.WatchlistSerializer
+    queryset = models.Watchlist.objects.all()
+    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+
+
+class RecipeWatchlistViewSet(CRDModelViewSet):
+    """Endpoints for recipe watchlist"""
+    serializer_class = serializers.RecipeWatchlistSerializer
+    queryset = models.RecipeWatchlist.objects.all()
+    permission_classes = [IsAuthenticated]

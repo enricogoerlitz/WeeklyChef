@@ -41,6 +41,10 @@ URL_INGREDIENT = "/api/v1/ingredient/"
 URL_RECIPE = "/api/v1/recipe/"
 URL_RECIPE_FAV = "/api/v1/recipe-favorite/"
 URL_RECIPE_ING = "/api/v1/recipe-ingredient/"
+URL_RECIPE_RAT = "/api/v1/recipe-rating/"
+URL_RECIPE_TAG = "/api/v1/recipe-tag/"
+URL_WATCHLIST = "/api/v1/watchlist/"
+URL_RECIPE_WATCH = "/api/v1/recipe-watchlist/"
 
 
 def check_is_auth_required(client: APIClient, endpoint: str):
@@ -1024,27 +1028,60 @@ class PrivateRecipeIngredientApiTests(TestCase):
 
         self.assertEqual(payload_data, res_data)
 
+    def test_patch(self):
+        """Test update model"""
+        recipe_ing_id = self.recipe_ing.id
+        payload = {**self.serializer.data}
+        payload["unit_quantity"] = 18921
+
+        res = self.client.patch(id_url(URL_RECIPE_ING, recipe_ing_id), payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        recipe_ing = models.RecipeIngredient.objects.get(id=recipe_ing_id)
+        self.assertEqual(
+            recipe_ing.unit_quantity,
+            payload["unit_quantity"]
+        )
+
     def test_delete(self):
         """Test deleting model, only owner or staff"""
         rf_id_url = id_url(URL_RECIPE_ING, self.recipe_ing.id)
         delete_res = self.client.delete(rf_id_url)
         is_delete_res = self.client.get(rf_id_url)
-        print(self.recipe_ing.id)
-        print(delete_res.data)
         self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve(self):
         """Test failing get not existing model"""
-        pass
+        res = self.client.get(id_url(URL_RECIPE_ING, 100))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_fail_create(self):
-        """Test failing validation. Not creating the object"""
-        pass
+    def test_fail_create_not_auth(self):
+        """Test failing auth. Not creating the object"""
+        denied_client = APIClient()
+        _ = setup_login(denied_client, username="denied_user1")
+        ingredient = create_ingredient(
+            "ing_name132",
+            "ing_name12",
+            self.unit
+        )
+        payload = {
+            "recipe": self.recipe.id,
+            "ingredient": ingredient.id,
+            "unit_quantity": 250
+        }
+
+        res = denied_client.post(URL_RECIPE_ING, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        pass
+        ri_id_url = id_url(URL_RECIPE_ING, self.recipe_ing.id)
+        delete_res = self.client.delete(ri_id_url)
+        is_delete_res = self.client.get(ri_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class PrivateRecipeRatingApiTests(TestCase):
@@ -1053,11 +1090,24 @@ class PrivateRecipeRatingApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = setup_login(self.client)
+        self.recipe1 = create_recipe("rr_recipe1", self.user)
+        self.recipe2 = create_recipe("rr_recipe2", self.user)
+        self.recipe_rat = create_recipe_rating(
+            self.user,
+            self.recipe1,
+            4.5
+        )
+        self.serializer = serializers.RecipeRatingSerializer(
+            self.recipe_rat
+        )
 
     def test_retrieve(self):
         """Test get model by id"""
-        # RecipeRatingDataSerializer
-        pass
+        res = self.client.get(
+            id_url(URL_RECIPE_RAT, self.recipe_rat.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, self.serializer.data)
 
     def test_retrieve_details(self):
         """Test get model by id"""
@@ -1065,7 +1115,20 @@ class PrivateRecipeRatingApiTests(TestCase):
 
     def test_list(self):
         """Test get all models"""
-        pass
+        payload = [
+            self.recipe_rat,
+            create_recipe_rating(self.user, self.recipe2, 3.5),
+        ]
+        payload_data = get_payload_data(
+            serializers.RecipeRatingSerializer,
+            payload,
+            True
+        )
+
+        res = self.client.get(URL_RECIPE_RAT)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, payload_data)
 
     def test_list_by_recipe_ids(self):
         """Test get all models"""
@@ -1097,31 +1160,79 @@ class PrivateRecipeRatingApiTests(TestCase):
 
     def test_create(self):
         """Test creating model"""
-        pass
+        recipe_id = create_recipe("rr_recipe3", self.user).id
+        payload = {
+            "user": self.user.id,
+            "recipe": recipe_id,
+            "rating": 1.5,
+        }
+        payload_data = get_payload_data(
+            serializers.RecipeRatingSerializer,
+            payload
+        )
+
+        res = self.client.post(URL_RECIPE_RAT, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipe = models.RecipeRating.objects.get(id=res.data["id"])
+        res_data = serializers.RecipeRatingSerializer(recipe).data
+        del res_data["id"]
+
+        self.assertEqual(payload_data, res_data)
 
     def test_patch(self):
         """Test update model"""
-        pass
+        payload = {
+            "rating": 2.5
+        }
 
-    def test_put(self):
-        """Test update model"""
-        pass
+        res = self.client.patch(
+            id_url(URL_RECIPE_RAT, self.recipe_rat.id),
+            payload,
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        recipe_rat = models.RecipeRating.objects.get(id=res.data["id"])
+        self.assertEqual(recipe_rat.rating, payload["rating"])
 
     def test_delete(self):
         """Test deleting model, only owner or staff"""
-        pass
+        owner_client = self.client
+
+        recipe_id_url = id_url(URL_RECIPE_RAT, self.recipe_rat.id)
+        delete_res = owner_client.delete(recipe_id_url)
+        is_delete_res = owner_client.get(recipe_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve(self):
         """Test failing get not existing model"""
-        pass
+        res = self.client.get(id_url(URL_RECIPE_RAT, 100))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_create(self):
         """Test failing validation. Not creating the object"""
-        pass
+        payload_min = {**self.serializer.data}
+        payload_max = {**self.serializer.data}
+        payload_min["rating"] = -1
+        payload_max["rating"] = 5.5
+
+        res_min = self.client.post(URL_RECIPE_RAT, payload_min)
+        res_max = self.client.post(URL_RECIPE_RAT, payload_max)
+
+        self.assertEqual(res_max.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res_min.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        pass
+        staff_client = APIClient()
+        _ = setup_login(staff_client, is_staff=False, username="teddy_auth_rr")
+
+        recipe_rat_id_url = id_url(URL_RECIPE_RAT, self.recipe_rat.id)
+        delete_res = staff_client.delete(recipe_rat_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivateRecipeTagApiTests(TestCase):
@@ -1130,11 +1241,25 @@ class PrivateRecipeTagApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = setup_login(self.client)
+        self.recipe = create_recipe("rt_recipe", self.user)
+        self.tag1 = create_tag("rr_tag1")
+        self.tag2 = create_tag("rr_tag2")
+        self.tag3 = create_tag("rr_tag3")
+        self.recipe_tag = create_recipe_tag(
+            self.recipe,
+            self.tag1
+        )
+        self.serializer = serializers.RecipeTagSerializer(
+            self.recipe_tag
+        )
 
     def test_retrieve(self):
         """Test get model by id"""
-        # RecipeTagDataSerializer
-        pass
+        res = self.client.get(
+            id_url(URL_RECIPE_TAG, self.recipe_tag.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, self.serializer.data)
 
     def test_retrieve_details(self):
         """Test get model by id"""
@@ -1142,7 +1267,21 @@ class PrivateRecipeTagApiTests(TestCase):
 
     def test_list(self):
         """Test get all models"""
-        pass
+        payload = [
+            self.recipe_tag,
+            create_recipe_tag(self.recipe, self.tag2),
+            create_recipe_tag(self.recipe, self.tag3),
+        ]
+        payload_data = get_payload_data(
+            serializers.RecipeTagSerializer,
+            payload,
+            True
+        )
+
+        res = self.client.get(URL_RECIPE_TAG)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, payload_data)
 
     def test_list_by_recipe_ids(self):
         """Test get all models filtered by recipe ids"""
@@ -1166,37 +1305,46 @@ class PrivateRecipeTagApiTests(TestCase):
 
     def test_create(self):
         """Test creating model"""
-        pass
+        tag_id = create_tag("create_rr_test").id
+        payload = {
+            "recipe": self.recipe.id,
+            "tag": tag_id,
+        }
+        payload_data = get_payload_data(
+            serializers.RecipeTagSerializer,
+            payload
+        )
 
-    def test_patch(self):
-        """Test update model"""
-        pass
+        res = self.client.post(URL_RECIPE_TAG, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    def test_put(self):
-        """
-        Test update model,
-        only recipe owner or staff
-        """
-        pass
+        recipe = models.RecipeTag.objects.get(id=res.data["id"])
+        res_data = serializers.RecipeTagSerializer(recipe).data
+        del res_data["id"]
+
+        self.assertEqual(payload_data, res_data)
 
     def test_delete(self):
         """
         Test deleting model,
         only recipe owner or staff
         """
-        pass
+        recipe_tag_id_url = id_url(URL_RECIPE_TAG, self.recipe_tag.id)
+        delete_res = self.client.delete(recipe_tag_id_url)
+        is_delete_res = self.client.get(recipe_tag_id_url)
 
-    def test_fail_retrieve(self):
-        """Test failing get not existing model"""
-        pass
-
-    def test_fail_create(self):
-        """Test failing validation. Not creating the object"""
-        pass
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        pass
+        denied_client = APIClient()
+        _ = setup_login(denied_client, username="rt_username")
+
+        delete_id_url = id_url(URL_RECIPE_TAG, self.recipe_tag.id)
+        res = denied_client.delete(delete_id_url)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivateWatchlistTests(TestCase):
@@ -1293,14 +1441,6 @@ class PrivateRecipeWatchlistApiTests(TestCase):
         Test deleting model,
         only watchlist owner or staff
         """
-        pass
-
-    def test_fail_retrieve(self):
-        """Test failing get not existing model"""
-        pass
-
-    def test_fail_create(self):
-        """Test failing validation. Not creating the object"""
         pass
 
     def test_fail_delete(self):

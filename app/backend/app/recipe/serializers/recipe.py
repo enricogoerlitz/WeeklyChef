@@ -119,7 +119,7 @@ class RecipeRatingSerializer(ModelSerializer):
         fields = ["id", "user", "recipe", "rating"]
         read_only_fields = ["id"]
         extra_kwargs = {
-            "rating": {"min_value": 0.5}
+            "rating": {"min_value": 0.5, "max_value": 5}
         }
 
 
