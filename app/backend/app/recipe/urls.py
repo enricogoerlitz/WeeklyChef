@@ -16,6 +16,11 @@ router.register("recipe-rating", views.RecipeRatingViewSet)
 router.register("recipe-tag", views.RecipeTagViewSet)
 router.register("watchlist", views.WatchlistViewSet)
 router.register("recipe-watchlist", views.RecipeWatchlistViewSet)
+router.register("food-shop", views.FoodShopViewSet)
+router.register("food-shop-area", views.FoodShopAreaViewSet)
+router.register("food-shop-area-part", views.FoodShopAreaPartViewSet)
+router.register("food-shop-area-part-ingredient", views.FoodShopAreaPartIngViewSet)  # noqa
+router.register("food-shop-favorite", views.FoodShopUserFavorite)
 
 # .../<int:id>/... # decorator: get_id -> if id=None -> Request.user_id
 

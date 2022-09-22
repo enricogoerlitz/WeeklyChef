@@ -1,39 +1,23 @@
 """
 Views for recipe.
 """
-from rest_framework import viewsets
 from rest_framework.serializers import ModelSerializer
-from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 
-from app_auth.authentication import JWTAuthentication
 from djdevted.request import IRequest
 from djdevted import response as res
 from recipe import serializers
 from core import models
-from recipe.permissions.recipe import (
+from recipe.permissions import (
     IsStaff,
     OnDeleteIsStaff,
     IsOwnerOrStaff,
     is_recipe_owner_or_staff,
 )
-
-
-class BaseAuthModelViewSet(viewsets.ModelViewSet):
-    """Base model for recipe endpoint authentication"""
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-
-class CRDModelViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+from .general import (
+    CRDModelViewSet,
+    BaseAuthModelViewSet
+)
 
 
 class UnitViewSet(BaseAuthModelViewSet):
@@ -142,3 +126,11 @@ class RecipeWatchlistViewSet(CRDModelViewSet):
     serializer_class = serializers.RecipeWatchlistSerializer
     queryset = models.RecipeWatchlist.objects.all()
     permission_classes = [IsAuthenticated]
+
+    @is_recipe_owner_or_staff
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @is_recipe_owner_or_staff
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)

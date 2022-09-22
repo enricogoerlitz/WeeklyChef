@@ -1,5 +1,9 @@
 # mypy: ignore-errors
 
+from .general import (
+    CRDModelViewSet,
+    JWTAuthentication
+)
 from .recipe import (
     TagViewSet,
     UnitViewSet,
@@ -11,4 +15,11 @@ from .recipe import (
     RecipeTagViewSet,
     WatchlistViewSet,
     RecipeWatchlistViewSet,
+)
+from .food_shop import (
+    FoodShopViewSet,
+    FoodShopAreaViewSet,
+    FoodShopAreaPartViewSet,
+    FoodShopAreaPartIngViewSet,
+    FoodShopUserFavorite,
 )

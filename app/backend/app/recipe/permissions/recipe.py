@@ -17,34 +17,11 @@ def is_owner_or_staff(request: IRequest, obj: Any) -> bool:
     return obj.user.id == request.user.id or request.user.is_staff
 
 
-class IsStaff(BasePermission):
-    """Check that the request user is staff"""
-
-    def has_permission(self, request: IRequest, view: Any):
-        return request.user.is_staff
-
-
 class IsOwnerOrStaff(BasePermission):
     """Check that the request user is the owner of staff"""
 
     def has_object_permission(self, request: IRequest, view: Any, obj: Any):
         return is_owner_or_staff(request, obj)
-
-
-class OnUpdateOrDeleteIsStaff(BasePermission):
-    """
-    Check that the request user is staff
-    On PUT, PATCH, DELETE
-    """
-    pass
-
-
-class OnUpdateOrDeleteIsOwnerOrStaff(BasePermission):
-    """
-    Check that the request user is the owner of staff
-    On PUT, PATCH, DELETE
-    """
-    pass
 
 
 class OnDeleteIsStaff(BasePermission):
@@ -117,6 +94,10 @@ def _get_recipe_id(
         ).recipe.id
     elif "recipe-tag" in req_path:
         return models.RecipeTag.objects.get(
+            id=pk
+        ).recipe.id
+    elif "recipe-watchlist" in req_path:
+        return models.RecipeWatchlist.objects.get(
             id=pk
         ).recipe.id
     return None

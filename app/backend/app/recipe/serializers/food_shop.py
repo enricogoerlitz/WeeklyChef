@@ -5,6 +5,7 @@ from rest_framework.serializers import ModelSerializer
 
 from core import models
 from recipe.serializers.recipe import IngredientDetailSerializer
+from recipe.serializers.user import UserGetSerializer
 
 
 class FoodShopSerializer(ModelSerializer):
@@ -114,3 +115,5 @@ class PreferredUserFoodShopDetailSerializer(PreferredUserFoodShopSerializer):
     Serialize favorite user food shop model
     with details
     """
+    user = UserGetSerializer(many=False)
+    food_shop = FoodShopSerializer(many=False)

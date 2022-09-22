@@ -6,15 +6,18 @@ RecipeFavorite, RecipeImage, RecipeIngredient
 RecipeRating, RecipeTag, Watchlist, RecipeWatchlist
 """
 from decimal import Decimal
-from typing import Callable, Union
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from rest_framework.test import APIClient
-from rest_framework.serializers import ModelSerializer
 from rest_framework import status
 
+from djdevted.test import (
+    check_is_auth_required,
+    get_payload_data,
+    id_url,
+)
 from core import models
 from core.tests.test_model_recipe import (  # noqa
     create_unit,
@@ -31,7 +34,6 @@ from core.tests.test_model_recipe import (  # noqa
 )
 from core.tests.test_model_user import create_user
 from recipe import serializers
-from recipe.serializers.recipe import RecipeFavoriteSerializer
 from recipe.tests.test_views_user import setup_login
 
 
@@ -44,26 +46,7 @@ URL_RECIPE_ING = "/api/v1/recipe-ingredient/"
 URL_RECIPE_RAT = "/api/v1/recipe-rating/"
 URL_RECIPE_TAG = "/api/v1/recipe-tag/"
 URL_WATCHLIST = "/api/v1/watchlist/"
-URL_RECIPE_WATCH = "/api/v1/recipe-watchlist/"
-
-
-def check_is_auth_required(client: APIClient, endpoint: str):
-    res = client.get(endpoint)
-    return res.status_code == status.HTTP_403_FORBIDDEN
-
-
-def id_url(url: str, id: int):
-    return f"{url}{id}/"
-
-
-def get_payload_data(
-    Serializer_class: Callable,
-    payload: Union[list, dict],
-    many=False
-) -> dict:
-    serializer: ModelSerializer = Serializer_class(many=many, data=payload)
-    serializer.is_valid()
-    return serializer.data
+URL_RECIPE_WLIST = "/api/v1/recipe-watchlist/"
 
 
 class PublicRecipeAuthRequired(TestCase):
@@ -787,11 +770,11 @@ class PrivateRecipeApiTests(TestCase):
     
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        staff_client = APIClient()
-        _ = setup_login(staff_client, is_staff=False, username="teddy_auth_4")
+        denied_client = APIClient()
+        _ = setup_login(denied_client, is_staff=False, username="teddy_auth_4")
 
         recipe_id_url = id_url(URL_RECIPE, self.recipe.id)
-        delete_res = staff_client.delete(recipe_id_url)
+        delete_res = denied_client.delete(recipe_id_url)
 
         self.assertEqual(delete_res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -815,7 +798,7 @@ class PrivateRecipeFavoriteApiTests(TestCase):
             create_user("dummy_rf"),
             self.recipe1
         )
-        self.serializer = RecipeFavoriteSerializer(self.recipe_fav)
+        self.serializer = serializers.RecipeFavoriteSerializer(self.recipe_fav)
 
     def test_retrieve(self):
         """
@@ -1353,42 +1336,125 @@ class PrivateWatchlistTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = setup_login(self.client)
+        self.watchlist = create_watchlist(self.user, "wlist1")
+        self.serializer = serializers.WatchlistSerializer(
+            self.watchlist
+        )
 
     def test_retrieve(self):
         """Test get model by id, only owner or staff"""
-        pass
+        res = self.client.get(
+            id_url(URL_WATCHLIST, self.watchlist.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, self.serializer.data)
 
     def test_list(self):
         """Test get all models, only owner or staff"""
-        pass
+        payload = [
+            self.watchlist,
+            create_watchlist(self.user, "wlist2"),
+            create_watchlist(self.user, "wlist3"),
+        ]
+        payload_data = get_payload_data(
+            serializers.WatchlistSerializer,
+            payload,
+            True
+        )
+
+        res = self.client.get(URL_WATCHLIST)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, payload_data)
 
     def test_create(self):
         """Test creating model"""
-        pass
+        payload = {
+            "user": self.user.id,
+            "watchlist_name": "new_wlist",
+        }
+        payload_data = get_payload_data(
+            serializers.WatchlistSerializer,
+            payload
+        )
+
+        res = self.client.post(URL_WATCHLIST, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        wlist = models.Watchlist.objects.get(id=res.data["id"])
+        res_data = serializers.WatchlistSerializer(wlist).data
+        del res_data["id"]
+
+        self.assertEqual(payload_data, res_data)
 
     def test_patch(self):
         """Test update model, only owner or staff"""
-        pass
+        wlist_id = self.watchlist.id
+        payload = {
+            "watchlist_name": "wlist_patch",
+        }
+
+        res = self.client.patch(id_url(URL_WATCHLIST, wlist_id), payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        wlist = models.Watchlist.objects.get(id=wlist_id)
+        self.assertEqual(
+            wlist.watchlist_name,
+            payload["watchlist_name"]
+        )
 
     def test_put(self):
         """Test update model, only owner or staff"""
-        pass
+        wlist_id = self.watchlist.id
+        payload = {**self.serializer.data}
+        payload["watchlist_name"] = "wlist_put"
+
+        res = self.client.put(id_url(URL_WATCHLIST, wlist_id), payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        wlist = models.Watchlist.objects.get(id=wlist_id)
+        self.assertEqual(
+            wlist.watchlist_name,
+            payload["watchlist_name"]
+        )
 
     def test_delete(self):
         """Test deleting model, only owner or staff"""
-        pass
+        owner_client = self.client
+
+        wlist_id_url = id_url(URL_WATCHLIST, self.watchlist.id)
+        delete_res = owner_client.delete(wlist_id_url)
+        is_delete_res = owner_client.get(wlist_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve(self):
         """Test failing get not existing model"""
-        pass
+        res = self.client.get(id_url(URL_WATCHLIST, 100))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_create(self):
         """Test failing validation. Not creating the object"""
-        pass
+        payload = {
+            "watchlist_name": "---"
+        }
+
+        res = self.client.post(URL_WATCHLIST, payload)
+
+        # should contain an error dict with the validation error fields
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("watchlist_name", res.data)
 
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        pass
+        denied_client = APIClient()
+        _ = setup_login(denied_client, is_staff=False, username="teddy_auth_4")
+
+        watchlist_id_url = id_url(URL_WATCHLIST, self.watchlist.id)
+        delete_res = denied_client.delete(watchlist_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivateRecipeWatchlistApiTests(TestCase):
@@ -1397,11 +1463,28 @@ class PrivateRecipeWatchlistApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = setup_login(self.client)
-
+        self.recipe1 = create_recipe("recipe_rw_1", self.user)
+        self.recipe2 = create_recipe("recipe_rw_2", self.user)
+        self.wlist1 = create_watchlist(self.user, "wlist_rw1")
+        self.wlist2 = create_watchlist(
+            create_user("wlist2_username"),
+            "wlist_rw2"
+        )
+        self.recipe_wlist = create_recipe_watchlist(
+            self.wlist1,
+            self.recipe1
+        )
+        self.serializer = serializers.RecipeWatchlistSerializer(
+            self.recipe_wlist
+        )
+        
     def test_retrieve(self):
         """Test get model by id"""
-        # RecipeWatchlistDataSerializer
-        pass
+        res = self.client.get(
+            id_url(URL_RECIPE_WLIST, self.recipe_wlist.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, self.serializer.data)
 
     def test_retrieve_details(self):
         """Test get model by id"""
@@ -1409,7 +1492,27 @@ class PrivateRecipeWatchlistApiTests(TestCase):
 
     def test_list(self):
         """Test get all models"""
-        pass
+        payload = [
+            self.recipe_wlist,
+            create_recipe_watchlist(
+                self.wlist1,
+                self.recipe2
+            ),
+            create_recipe_watchlist(
+                self.wlist2,
+                self.recipe1
+            ),
+        ]
+        payload_data = get_payload_data(
+            serializers.RecipeWatchlistSerializer,
+            payload,
+            True
+        )
+
+        res = self.client.get(URL_RECIPE_WLIST)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, payload_data)
 
     def test_list_details(self):
         """Test get all models"""
@@ -1420,29 +1523,54 @@ class PrivateRecipeWatchlistApiTests(TestCase):
         Test creating model,
         only watchlist owner or staff
         """
-        pass
+        payload = {
+            "watchlist": self.wlist2.id,
+            "recipe": self.recipe2.id,
+        }
+        payload_data = get_payload_data(
+            serializers.RecipeWatchlistSerializer,
+            payload
+        )
 
-    def test_patch(self):
-        """
-        Test update model,
-        only watchlist owner or staff
-        """
-        pass
+        res = self.client.post(URL_RECIPE_WLIST, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    def test_put(self):
-        """
-        Test update model,
-        only watchlist owner or staff
-        """
-        pass
+        recipe_wlist = models.RecipeWatchlist.objects.get(id=res.data["id"])
+        res_data = serializers.RecipeWatchlistSerializer(recipe_wlist).data
+        del res_data["id"]
+
+        self.assertEqual(payload_data, res_data)
 
     def test_delete(self):
         """
         Test deleting model,
         only watchlist owner or staff
         """
-        pass
+        recipe_wlist_id_url = id_url(URL_RECIPE_WLIST, self.recipe_wlist.id)
+        delete_res = self.client.delete(recipe_wlist_id_url)
+        is_delete_res = self.client.get(recipe_wlist_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(is_delete_res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create_fail(self):
+        """Test creating only recipe owner or staff"""
+        denied_client = APIClient()
+        _ = setup_login(denied_client, is_staff=False, username="teddy_auth_4")
+        payload = {
+            "watchlist": self.wlist2.id,
+            "recipe": self.recipe1.id,
+        }
+
+        res = denied_client.post(URL_RECIPE_WLIST, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
-        pass
+        denied_client = APIClient()
+        _ = setup_login(denied_client, is_staff=False, username="teddy_auth_4")
+
+        recipe_wlist_id_url = id_url(URL_RECIPE_WLIST, self.recipe_wlist.id)
+        delete_res = denied_client.delete(recipe_wlist_id_url)
+
+        self.assertEqual(delete_res.status_code, status.HTTP_403_FORBIDDEN)
