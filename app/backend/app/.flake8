@@ -10,5 +10,4 @@ exclude =
     info.*
 
 ignore = 
-    W293,
-    W504
+    W504,

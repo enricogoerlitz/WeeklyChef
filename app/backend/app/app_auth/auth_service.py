@@ -39,7 +39,7 @@ def login_user(request: IRequest) -> dict:
     """
     username = request.data.get("username")
     password = request.data.get("password")
-    
+
     if not username:
         raise ValueError("The username field is required.")
 
@@ -58,12 +58,12 @@ def refresh_token(request: IRequest) -> dict:
     refresh_token = request.data.get("refresh_token")
     if not refresh_token:
         raise ValueError("No refresh token in request body.")
-    
+
     decoded_token = decode_token(refresh_token)
 
     if not decoded_token.get("is_refresh_token"):
         raise ValueError("The passed token is no refresh token.")
-    
+
     user_id = decoded_token.get("user_id")
     user: User = User.objects.get(id=user_id)
 

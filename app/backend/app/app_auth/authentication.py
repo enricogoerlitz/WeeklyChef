@@ -19,10 +19,10 @@ class JWTAuthUser:
         self.id = id
         self.is_staff = is_staff
         self.is_authenticated = True if id else False
-    
+
     def __str__(self) -> str:
         return f"{self.id} | {self.is_staff} | {self.is_authenticated}"
-    
+
 
 class JWTAuthentication(BaseAuthentication):
     """Class for set needed data to the request object"""

@@ -67,7 +67,7 @@ class RecipeFavoriteViewSet(CRDModelViewSet):
         )
         _ = serializer.is_valid()
         return res.success(serializer.data)
-        
+
 
 class RecipeIngredientViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
@@ -82,11 +82,11 @@ class RecipeIngredientViewSet(BaseAuthModelViewSet):
     @is_recipe_owner_or_staff
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
+
     @is_recipe_owner_or_staff
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-    
+
     @is_recipe_owner_or_staff
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)

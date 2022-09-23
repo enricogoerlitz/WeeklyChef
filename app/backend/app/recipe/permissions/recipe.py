@@ -43,7 +43,7 @@ def is_recipe_owner_or_staff(func: Callable) -> Callable:
 
             if recipe.user.id == request.user.id:
                 return func(view, request, *args, **kwargs)
-            
+
             err_msg = "Only the recipe creator can " + \
                       "modify the recipe ingredients."
             return res.error_403_forbidden(err_msg)

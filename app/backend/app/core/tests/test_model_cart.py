@@ -45,7 +45,7 @@ def create_recipe_cart_ingredient(
 
 class DayTimeModelTests(TestCase):
     """Test day time model"""
-    
+
     def test_create_day_time(self):
         """Test creating day time"""
         day_time_name = "Nachmittag"
@@ -105,7 +105,7 @@ class RecipeCartModelTests(TestCase):
             recipe_name1,
             date1
         )
-    
+
         self.assertEqual(rc1.user.id, user1.id)
         self.assertEqual(rc1.food_shop.id, food_shop1.id)
         self.assertEqual(rc1.day_time.id, day_time1.id)

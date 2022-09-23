@@ -55,7 +55,7 @@ class FoodShopAreaPartSerializer(ModelSerializer):
     class Meta:
         model = models.FoodShopAreaPart
         fields = [
-            "id", "area", "area_part_name"
+            "id", "area", "area_part_name",
             "area_part_order_number"
         ]
         read_only_fields = ["id"]

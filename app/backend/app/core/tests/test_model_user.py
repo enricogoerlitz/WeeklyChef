@@ -53,7 +53,7 @@ class UserModelTests(TestCase):
         #  without username
         with self.assertRaises(ValueError):
             create_user(username=None)
-        
+
         #  username with whitespaces
         with self.assertRaises(ValueError):
             create_user(username="teddy with whitespaces")

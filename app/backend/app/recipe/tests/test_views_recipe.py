@@ -54,7 +54,7 @@ class PublicRecipeAuthRequired(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-    
+
     def test_auth_required_unit(self):
         """Test auth required for model endpoint"""
         self.assertTrue(
@@ -72,19 +72,19 @@ class PublicRecipeAuthRequired(TestCase):
         self.assertTrue(
             check_is_auth_required(self.client, URL_INGREDIENT)
         )
-        
+
     def test_auth_required_recipe(self):
         """Test auth required for recipe endpoint"""
         self.assertTrue(
             check_is_auth_required(self.client, URL_RECIPE)
         )
-        
+
     def test_auth_required_recipe_favorite(self):
         """Test auth required for recipe favorite endpoint"""
         self.assertTrue(
             check_is_auth_required(self.client, URL_RECIPE_FAV)
         )
-        
+
     def test_auth_required_recipe_ingredient(self):
         """Test auth required for recipe ingredient endpoint"""
         self.assertTrue(
@@ -105,7 +105,7 @@ class PrivateUnitApiTests(TestCase):
         serializer = serializers.UnitSerializer(unit)
 
         res = self.client.get(id_url(URL_UNIT, unit.id))
-        
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
@@ -120,7 +120,7 @@ class PrivateUnitApiTests(TestCase):
             payload,
             True
         )
-        
+
         res = self.client.get(URL_UNIT)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -142,7 +142,7 @@ class PrivateUnitApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data, payload_data)
-        
+
     def test_patch(self):
         """Test update model, only staff"""
         unit = create_unit("patch_base_unit")
@@ -226,7 +226,7 @@ class PrivateUnitApiTests(TestCase):
         denied_client = APIClient()
         _ = setup_login(denied_client, username="teddy_auth_2")
         unit = create_unit("__new__")
-        
+
         res_get = denied_client.get(URL_UNIT)
         res_post = denied_client.post(URL_UNIT, {"unit_name": "_new_"})
         res_put = denied_client.put(
@@ -261,7 +261,7 @@ class PrivateTagApiTests(TestCase):
         serializer = serializers.TagSerializer(tag)
 
         res = self.client.get(id_url(URL_TAG, tag.id))
-        
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
@@ -276,7 +276,7 @@ class PrivateTagApiTests(TestCase):
             payload,
             True
         )
-        
+
         res = self.client.get(URL_TAG)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -412,7 +412,7 @@ class PrivateIngredientApiTests(TestCase):
         """Test get model by id"""
         ing_id = self.ingredient.id
         res = self.client.get(id_url(URL_INGREDIENT, ing_id))
-        
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, self.serializer.data)
 
@@ -436,7 +436,7 @@ class PrivateIngredientApiTests(TestCase):
             payload,
             True
         )
-        
+
         res = self.client.get(URL_INGREDIENT)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -508,7 +508,7 @@ class PrivateIngredientApiTests(TestCase):
         res = self.client.put(id_url(URL_INGREDIENT, ing_id), payload)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        ingredient: models.Ingredient = models.Ingredient.objects.get(
+        ingredient = models.Ingredient.objects.get(
             id=ing_id
         )
         self.assertEqual(
@@ -564,7 +564,7 @@ class PrivateIngredientApiTests(TestCase):
         self.assertIn("ingredient_display_name", res.data)
         self.assertIn("default_price", res.data)
         self.assertIn("quantity_per_unit", res.data)
-    
+
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
         ingredient = create_ingredient(
@@ -706,7 +706,7 @@ class PrivateRecipeApiTests(TestCase):
         res = self.client.put(id_url(URL_RECIPE, recipe_id), payload)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        recipe: models.Recipe = models.Recipe.objects.get(
+        recipe = models.Recipe.objects.get(
             id=recipe_id
         )
         self.assertEqual(
@@ -767,7 +767,7 @@ class PrivateRecipeApiTests(TestCase):
         self.assertIn("person_count", res.data)
         self.assertIn("prep_description", res.data)
         self.assertIn("cooking_duration_min", res.data)
-    
+
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
         denied_client = APIClient()
@@ -808,9 +808,9 @@ class PrivateRecipeFavoriteApiTests(TestCase):
         recipe_fav = create_recipe_favorite(self.user1, self.recipe1)
         recipe_fav_id = recipe_fav.id
         serializer = serializers.RecipeFavoriteSerializer(recipe_fav)
-        
+
         res = self.client.get(id_url(URL_RECIPE_FAV, recipe_fav_id))
-        
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
@@ -844,7 +844,7 @@ class PrivateRecipeFavoriteApiTests(TestCase):
             payload,
             True
         )
-        
+
         res = self.client.get(URL_RECIPE_FAV)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, payload_data)
@@ -895,7 +895,7 @@ class PrivateRecipeFavoriteApiTests(TestCase):
         """Test trying getting foreign favorite"""
         denied_client = APIClient()
         _ = setup_login(denied_client, username="denied_user")
-        
+
         res = denied_client.get(id_url(URL_RECIPE_FAV, self.recipe_fav.id))
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
@@ -910,7 +910,7 @@ class PrivateRecipeFavoriteApiTests(TestCase):
         """Test deleting deleting model, no authorization"""
         denied_client = APIClient()
         _ = setup_login(denied_client, username="denied_user")
-        
+
         res = denied_client.get(id_url(URL_RECIPE_FAV, self.recipe_fav.id))
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
@@ -940,7 +940,7 @@ class PrivateRecipeIngredientApiTests(TestCase):
     def test_retrieve(self):
         """Test get model by id"""
         res = self.client.get(id_url(URL_RECIPE_ING, self.recipe_ing.id))
-        
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, self.serializer.data)
 
@@ -976,7 +976,7 @@ class PrivateRecipeIngredientApiTests(TestCase):
             payload,
             True
         )
-        
+
         res = self.client.get(URL_RECIPE_ING)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, payload_data)
@@ -1477,7 +1477,7 @@ class PrivateRecipeWatchlistApiTests(TestCase):
         self.serializer = serializers.RecipeWatchlistSerializer(
             self.recipe_wlist
         )
-        
+
     def test_retrieve(self):
         """Test get model by id"""
         res = self.client.get(

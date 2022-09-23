@@ -167,7 +167,7 @@ class UnitModelTests(TestCase):
         self.assertEqual(unit.unit_name, unit_name)
         self.assertEqual(unit2.unit_name, unit_name2)
 
-    
+
 class TagModelTests(TestCase):
     """Test Tag Model"""
 
@@ -238,7 +238,7 @@ class RecipeModelTests(TestCase):
             "recipe_name": "BaseRecipe",
             "user": self.user
         }
-    
+
     def test_recipe_create(self):
         """Test creating recipe"""
         recipe = create_recipe(**self.params)
@@ -279,7 +279,7 @@ class RecipeImageModelTests(TestCase):
 
     def setUp(self):
         self.recipe = setup_recipe(setup_user())
-    
+
     def test_create_recipe_image(self):
         """Test creating an recipe image"""
         img_path = "/usr/img/path"
@@ -332,7 +332,7 @@ class RecipeIngredientModelTests(TestCase):
 
         self.assertEqual(recipe_ing4.recipe.id, recipe2.id)
         self.assertEqual(recipe_ing4.ingredient.id, ingredient2.id)
-    
+
 
 class RecipeRatingModelTests(TestCase):
     """Test recipe rating model"""
@@ -366,7 +366,7 @@ class RecipeTagModelTests(TestCase):
 
     def setUp(self):
         self.user = setup_user()
-    
+
     def test_create_recipe_tag(self):
         """Test creating recipe tag"""
         recipe1 = create_recipe("recipe1", self.user)
@@ -422,7 +422,7 @@ class RecipeWatchlistModelTests(TestCase):
 
     def setUp(self):
         self.user = setup_user()
-    
+
     def test_create_recipe_watchlist(self):
         """Test creating recipe watchlist"""
         watchlist1 = create_watchlist(self.user, "watchlist1")

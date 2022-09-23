@@ -20,7 +20,7 @@ class PublicAuthTokenApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user: models.User = setup_user()
-    
+
     def test_register_user(self):
         """Test registration of an user"""
         user_data = {
@@ -30,11 +30,11 @@ class PublicAuthTokenApiTests(TestCase):
         }
 
         res = self.client.post(URL_REGISTER, user_data)
-        
+
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertIn("token", res.data)
         self.assertIn("refresh_token", res.data)
-    
+
     def test_register_no_staff_user(self):
         """Test registration of an staff user not working"""
         user_data = {
@@ -45,7 +45,7 @@ class PublicAuthTokenApiTests(TestCase):
         }
 
         res = self.client.post(URL_REGISTER, user_data)
-        
+
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertIn("token", res.data)
         self.assertIn("refresh_token", res.data)
@@ -54,7 +54,7 @@ class PublicAuthTokenApiTests(TestCase):
         user: models.User = models.User.objects.get(id=user_id)
 
         self.assertFalse(user.is_staff)
-    
+
     def test_register_user_wrong_data(self):
         """Test wrong user data passed"""
         user_data1 = {
@@ -79,7 +79,7 @@ class PublicAuthTokenApiTests(TestCase):
         res2 = self.client.post(URL_REGISTER, user_data2)
         res3 = self.client.post(URL_REGISTER, user_data3)
         res4 = self.client.post(URL_REGISTER, user_data4)
-        
+
         self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res3.status_code, status.HTTP_400_BAD_REQUEST)
@@ -106,7 +106,7 @@ class PublicAuthTokenApiTests(TestCase):
 
         self.assertEqual(user.id, decoded_token["user_id"])
         self.assertEqual(user.id, decoded_refresh_token["user_id"])
-    
+
     def test_login_user_missing_data(self):
         """Test logging in user"""
         res1 = self.client.post(
@@ -144,7 +144,7 @@ class PublicAuthTokenApiTests(TestCase):
         )
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
-    
+
     def test_refresh_an_token(self):
         """Test refreshing the token"""
         user = self.user

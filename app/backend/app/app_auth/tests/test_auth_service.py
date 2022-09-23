@@ -21,7 +21,7 @@ class TestAuthService(TestCase):
 
     def setUp(self):
         self.user: models.User = setup_user()
-    
+
     def test_create_jwt(self):
         """Test creating jwt"""
         data_dict = {"data1": "Teddy", "data2": "Bear"}
@@ -33,7 +33,7 @@ class TestAuthService(TestCase):
 
         self.assertTrue(isinstance(token, str))
         self.assertTrue(isinstance(token2, str))
-        
+
         decoded_token = auth_service.decode_token(token)
         decoded_token2 = auth_service.decode_token(token2)
 
@@ -53,9 +53,9 @@ class TestAuthService(TestCase):
             current_date + timedelta(**auth_service.EXP_DURATION)
         )
         exp_token_date = datetime.fromtimestamp(decoded_token["exp"])
-        
+
         self.assertTrue(compare_dates(expected_exp_date, exp_token_date))
-        
+
         self.assertEqual(str(current_date)[:10],
                          decoded_token["creation_date"][:10])
         self.assertEqual(str(current_date)[:10],
@@ -135,7 +135,7 @@ class TestAuthService(TestCase):
         exp_token_date = datetime.fromtimestamp(decoded_token["exp"])
 
         self.assertTrue(compare_dates(expected_exp_date, exp_token_date))
-        
+
         self.assertEqual(str(current_date)[:10],
                          decoded_token["creation_date"][:10])
         self.assertEqual(str(current_date)[:10],
@@ -143,11 +143,11 @@ class TestAuthService(TestCase):
 
         self.assertEqual(decoded_token["user_id"], self.user.id)
         self.assertEqual(decoded_refresh_token["user_id"], self.user.id)
-        
+
         self.assertEqual(decoded_token["is_refresh_token"], False)
         self.assertEqual(decoded_refresh_token["is_refresh_token"], True)
 
         self.assertFalse(decoded_token["is_staff"])
-        
+
         self.assertEqual(decoded_token["iss"], settings.JWT_ISSUER)
         self.assertEqual(decoded_refresh_token["iss"], settings.JWT_ISSUER)

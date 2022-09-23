@@ -91,7 +91,7 @@ class FoodShopModelTests(TestCase):
 
     def setUp(self):
         self.user = setup_user()
-    
+
     def test_create_food_shop(self):
         """Test creating food shop"""
         shop_name = "shop1"
@@ -106,7 +106,7 @@ class FoodShopModelTests(TestCase):
 
 class FoodShopAreaModelTests(TestCase):
     """Test food shop area model"""
-    
+
     def test_creating_food_shop_area(self):
         """Test creating food shop area"""
         food_shop1 = create_food_shop("shop1")
@@ -136,15 +136,15 @@ class FoodShopAreaModelTests(TestCase):
         self.assertEqual(fsa3.food_shop.id, food_shop1.id)
         self.assertEqual(fsa3.area_name, area_name3)
         self.assertEqual(fsa3.area_order_number, order3)
-        
+
         self.assertEqual(fsa4.food_shop.id, food_shop2.id)
         self.assertEqual(fsa4.area_name, area_name1)
         self.assertEqual(fsa4.area_order_number, order1)
-        
+
         self.assertEqual(fsa5.food_shop.id, food_shop2.id)
         self.assertEqual(fsa5.area_name, area_name2)
         self.assertEqual(fsa5.area_order_number, order2)
-        
+
         self.assertEqual(fsa6.food_shop.id, food_shop2.id)
         self.assertEqual(fsa6.area_name, area_name3)
         self.assertEqual(fsa6.area_order_number, order3)
@@ -155,7 +155,7 @@ class FoodShopAreaPartModelTests(TestCase):
 
     def setUp(self):
         self.shop = create_food_shop("shop1")
-    
+
     def test_create_food_shop_area_part(self):
         """Test creating a food shop area part"""
         area1 = create_food_shop_area(

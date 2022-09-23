@@ -3,10 +3,12 @@ Views for food-shop.
 """
 from rest_framework.permissions import IsAuthenticated
 
-from recipe import serializers
 from core import models
-from recipe.permissions import OnDeleteIsStaff
-from recipe.permissions.recipe import IsOwnerOrStaff
+from recipe import serializers
+from recipe.permissions import (
+    OnDeleteIsStaff,
+    IsOwnerOrStaff,
+)
 from .general import BaseAuthModelViewSet
 
 
@@ -31,6 +33,7 @@ class FoodShopAreaPartViewSet(BaseOnDeleteIsStaffViewSet):
     """Endpoints for FoodShopAreaPart"""
     serializer_class = serializers.FoodShopAreaPartSerializer
     queryset = models.FoodShopAreaPart.objects.all()
+    # -> endpoint for new Order!
 
 
 class FoodShopAreaPartIngViewSet(BaseOnDeleteIsStaffViewSet):

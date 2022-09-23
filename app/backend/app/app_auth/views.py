@@ -23,7 +23,7 @@ class AuthTokenAPIView(APIView):
         if request.path == "/api/v1/token/register/":
             return self.register(request, *args, **kwargs)
         return self.login(request, *args, **kwargs)
-    
+
     def login(self, request: IRequest, *args, **kwargs) -> Response:
         """Handle user login, generating and returning jwt token"""
         try:
@@ -50,7 +50,7 @@ class AuthTokenAPIView(APIView):
             return res.error_401_unauthorized("Invalid Token signature.")
         except Exception as exp:
             return res.error_500_internal_server_error(exp)
-    
+
     def register(self, request: IRequest, *args, **kwargs):
         """
         Handle user registration and
