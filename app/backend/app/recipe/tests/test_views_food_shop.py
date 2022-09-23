@@ -8,7 +8,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from djdevted.test import (  # noqa
+from djdevted.test import (
     check_is_auth_required,
     get_payload_data,
     id_url,

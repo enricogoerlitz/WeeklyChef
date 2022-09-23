@@ -21,6 +21,9 @@ router.register("food-shop-area", views.FoodShopAreaViewSet)
 router.register("food-shop-area-part", views.FoodShopAreaPartViewSet)
 router.register("food-shop-area-part-ingredient", views.FoodShopAreaPartIngViewSet)  # noqa
 router.register("food-shop-favorite", views.FoodShopUserFavorite)
+router.register("day-time", views.DayTimeViewSet)
+router.register("recipe-cart", views.RecipeCartViewSet)
+router.register("recipe-cart-ingredient", views.RecipeCartIngredientViewSet)
 
 # .../<int:id>/... # decorator: get_id -> if id=None -> Request.user_id
 

@@ -31,7 +31,7 @@ class RecipeCartSerializer(ModelSerializer):
         read_only_fields = ["id"]
 
 
-class RecipeCartSerializer(RecipeCartSerializer):
+class RecipeCartDetailSerializer(RecipeCartSerializer):
     """Serialize recipe cart model"""
     user = serializers.UserGetSerializer(many=False)
     day_time = DayTimeSerializer
@@ -48,3 +48,9 @@ class RecipeCartIngredientSerializer(ModelSerializer):
             "ingredient", "buy_unit_quantity", "is_done"
         ]
         read_only_fields = ["id"]
+
+
+class RecipeCartIngredientDetailSerializer(RecipeCartIngredientSerializer):
+    """Serialize recipe cart ingredient model"""
+    shopping_cart_recipe = RecipeCartSerializer
+    ingredient = serializers.IngredientSerializer
