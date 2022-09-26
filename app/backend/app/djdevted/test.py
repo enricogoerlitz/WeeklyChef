@@ -1,9 +1,10 @@
 """
 Module for test API-Endpoints
 """
-from typing import Callable, Union
+from typing import Callable, Union, TypeVar
 
 from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.test import APIClient
 from rest_framework.serializers import ModelSerializer
 
@@ -27,3 +28,20 @@ def get_payload_data(
     serializer: ModelSerializer = Serializer_class(many=many, data=payload)
     serializer.is_valid()
     return serializer.data
+
+
+HttpResponseObjClass = TypeVar("HttpResponseObjClass", bound="HttpResponseObj")
+
+
+class HttpResponseObj:
+    """Compare two HTTP Responses"""
+
+    def __init__(self) -> None:
+        pass
+
+    def compare(obj: Union[HttpResponseObjClass, dict, Response]):
+        """
+        Compares the given object with this object
+        Raises NotEqualException
+        """
+        pass

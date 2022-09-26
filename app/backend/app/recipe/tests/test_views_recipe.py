@@ -386,9 +386,7 @@ class PrivateTagApiTests(TestCase):
     def test_fail_delete(self):
         """Test deleting deleting model, no authorization"""
         tag = create_tag("teg_delete")
-
         res = self.client.delete(id_url(URL_TAG, tag.id))
-
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 

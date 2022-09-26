@@ -3,11 +3,16 @@ API exceptions
 """
 
 
-class FieldRequiredException(Exception):
+class FieldRequiredError(Exception):
     """Exception for not passed fields in request"""
     pass
 
 
-class MethodNotImplementedException(Exception):
+class MethodNotImplementedError(Exception):
     """Exception for not implemented methods"""
+    pass
+
+
+class NotEqualError(Exception):
+    """Exception for objects not equal"""
     pass

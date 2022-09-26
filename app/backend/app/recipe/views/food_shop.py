@@ -7,7 +7,7 @@ from core import models
 from recipe import serializers
 from recipe.permissions import (
     OnDeleteIsStaff,
-    IsOwnerOrStaff,
+    IsOwnerOrIsStaff,
 )
 from .general import BaseAuthModelViewSet
 
@@ -46,4 +46,4 @@ class FoodShopUserFavorite(BaseAuthModelViewSet):
     """Endpoints for FoodShopFavorite"""
     serializer_class = serializers.PreferredUserFoodShopSerializer
     queryset = models.PreferredUserFoodShop.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    permission_classes = [IsAuthenticated, IsOwnerOrIsStaff]

@@ -8,7 +8,8 @@ from core import models
 from recipe import serializers
 from recipe.permissions import (
     OnDeleteIsStaff,
-    IsOwnerOrStaff,
+    IsOwnerOrIsStaff,
+    IsCartOwnerOrIsStaff
 )
 from .general import (
     CRDModelViewSet,
@@ -27,7 +28,7 @@ class RecipeCartViewSet(BaseAuthModelViewSet):
     """Endpoints for RecipeCart"""
     serializer_class = serializers.RecipeCartSerializer
     queryset = models.RecipeCart.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    permission_classes = [IsAuthenticated, IsOwnerOrIsStaff]
 
 
 class RecipeCartIngredientViewSet(BaseAuthModelViewSet):
@@ -36,18 +37,18 @@ class RecipeCartIngredientViewSet(BaseAuthModelViewSet):
     queryset = models.RecipeCartIngredient.objects.all()
     permission_classes = [IsAuthenticated]
 
-    # @is_is_cart_owner_or_staff
+    @IsCartOwnerOrIsStaff
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    # @is_is_cart_owner_or_staff
+    @IsCartOwnerOrIsStaff
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    # @is_is_cart_owner_or_staff
+    @IsCartOwnerOrIsStaff
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    # @is_is_cart_owner_or_staff
+    @IsCartOwnerOrIsStaff
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

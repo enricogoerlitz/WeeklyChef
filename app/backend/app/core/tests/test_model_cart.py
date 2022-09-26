@@ -18,7 +18,7 @@ def create_recipe_cart(
     food_shop: models.FoodShop,
     day_time: models.DayTime,
     recipe_name: str = "Spagetti Carbonara",
-    date: str = "08.09.2022"
+    date: str = "2022-03-01"
 ) -> models.RecipeCart:
     return models.RecipeCart.objects.create(
         user=user,

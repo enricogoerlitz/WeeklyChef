@@ -23,12 +23,15 @@ class RecipeCartSerializer(ModelSerializer):
     """Serialize recipe cart model"""
 
     class Meta:
-        models = models.RecipeCart
+        model = models.RecipeCart
         fields = [
             "id", "user", "date",
             "day_time", "recipe_name", "food_shop"
         ]
         read_only_fields = ["id"]
+        extra_kwargs = {
+            "recipe_name": {"min_length": 4}
+        }
 
 
 class RecipeCartDetailSerializer(RecipeCartSerializer):
@@ -48,6 +51,9 @@ class RecipeCartIngredientSerializer(ModelSerializer):
             "ingredient", "buy_unit_quantity", "is_done"
         ]
         read_only_fields = ["id"]
+        extra_kwargs = {
+            "buy_unit_quantity": {"min_value": 0}
+        }
 
 
 class RecipeCartIngredientDetailSerializer(RecipeCartIngredientSerializer):

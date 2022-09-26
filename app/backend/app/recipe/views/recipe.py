@@ -11,8 +11,8 @@ from core import models
 from recipe.permissions import (
     IsStaff,
     OnDeleteIsStaff,
-    IsOwnerOrStaff,
-    is_recipe_owner_or_staff,
+    IsOwnerOrIsStaff,
+    IsRecipeOwnerOrIsStaff,
 )
 from .general import (
     CRDModelViewSet,
@@ -50,14 +50,14 @@ class RecipeViewSet(BaseAuthModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.RecipeSerializer
     queryset = models.Recipe.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    permission_classes = [IsAuthenticated, IsOwnerOrIsStaff]
 
 
 class RecipeFavoriteViewSet(CRDModelViewSet):
     """Endpoints for tag"""
     serializer_class = serializers.RecipeFavoriteSerializer
     queryset = models.RecipeFavorite.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    permission_classes = [IsAuthenticated, IsOwnerOrIsStaff]
 
     def list(self, request: IRequest):
         qs = self.queryset.filter(user=request.user.id)
@@ -75,19 +75,19 @@ class RecipeIngredientViewSet(BaseAuthModelViewSet):
     queryset = models.RecipeIngredient.objects.all()
     permission_classes = [IsAuthenticated]
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
@@ -96,7 +96,7 @@ class RecipeRatingViewSet(BaseAuthModelViewSet):
     """Endpoints for recipe rating"""
     serializer_class = serializers.RecipeRatingSerializer
     queryset = models.RecipeRating.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    permission_classes = [IsAuthenticated, IsOwnerOrIsStaff]
 
 
 class RecipeTagViewSet(CRDModelViewSet):
@@ -105,11 +105,11 @@ class RecipeTagViewSet(CRDModelViewSet):
     queryset = models.RecipeTag.objects.all()
     permission_classes = [IsAuthenticated]
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -118,7 +118,7 @@ class WatchlistViewSet(BaseAuthModelViewSet):
     """Endpoints for watchlist"""
     serializer_class = serializers.WatchlistSerializer
     queryset = models.Watchlist.objects.all()
-    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    permission_classes = [IsAuthenticated, IsOwnerOrIsStaff]
 
 
 class RecipeWatchlistViewSet(CRDModelViewSet):
@@ -127,10 +127,10 @@ class RecipeWatchlistViewSet(CRDModelViewSet):
     queryset = models.RecipeWatchlist.objects.all()
     permission_classes = [IsAuthenticated]
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @is_recipe_owner_or_staff
+    @IsRecipeOwnerOrIsStaff
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

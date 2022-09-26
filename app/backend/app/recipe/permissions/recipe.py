@@ -5,36 +5,18 @@ from typing import Any, Callable, Union
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from rest_framework.permissions import BasePermission
-
-from core import models
 from djdevted import response as res
-from djdevted.exceptions import FieldRequiredException
+from djdevted.exceptions import FieldRequiredError
 from djdevted.request import IRequest
 
-
-def is_owner_or_staff(request: IRequest, obj: Any) -> bool:
-    return obj.user.id == request.user.id or request.user.is_staff
+from core import models
 
 
-class IsOwnerOrStaff(BasePermission):
-    """Check that the request user is the owner of staff"""
-
-    def has_object_permission(self, request: IRequest, view: Any, obj: Any):
-        return is_owner_or_staff(request, obj)
-
-
-class OnDeleteIsStaff(BasePermission):
-    """Check if delete is staff user"""
-
-    def has_object_permission(self, request: IRequest, view, obj):
-        if request.method == "DELETE":
-            return request.user.is_staff
-        return True
-
-
-def is_recipe_owner_or_staff(func: Callable) -> Callable:
-    """Checks whether the user is the recipe creator"""
+def IsRecipeOwnerOrIsStaff(func: Callable) -> Callable:
+    """
+    Permission decorator
+    Checks whether the user is the recipe creator or staff
+    """
     def wrapper(view: Any, request: IRequest, *args, **kwargs):
         try:
             recipe = _get_recipe(request, *args, **kwargs)
@@ -47,7 +29,7 @@ def is_recipe_owner_or_staff(func: Callable) -> Callable:
             err_msg = "Only the recipe creator can " + \
                       "modify the recipe ingredients."
             return res.error_403_forbidden(err_msg)
-        except (ObjectDoesNotExist, FieldRequiredException) as exp:
+        except (ObjectDoesNotExist, FieldRequiredError) as exp:
             return res.error_400_bad_request(exp)
         except (Exception, NotImplementedError) as exp:
             return res.error_500_internal_server_error(exp)
@@ -66,7 +48,7 @@ def _get_recipe(
     """
     recipe_id = _get_recipe_id(request, *args, **kwargs)
     if not recipe_id:
-        raise FieldRequiredException("The field 'recipe' is required.")
+        raise FieldRequiredError("The field 'recipe' is required.")
     return models.Recipe.objects.get(id=recipe_id)
 
 
@@ -81,7 +63,7 @@ def _get_recipe_id(
     Raises NotImplementedError
     """
     if request.method == "POST":
-        return request.data.get("recipe")
+        return int(request.data.get("recipe"))
     if request.method == "GET":
         raise NotImplementedError("GET-Method not implemented.")
 
