@@ -19,6 +19,7 @@ from djdevted.test import (
     id_url,
 )
 from core import models
+from core.tests.test_model_user import create_user
 from core.tests.test_model_recipe import (  # noqa
     create_unit,
     create_tag,
@@ -32,7 +33,6 @@ from core.tests.test_model_recipe import (  # noqa
     create_watchlist,
     create_recipe_watchlist
 )
-from core.tests.test_model_user import create_user
 from recipe import serializers
 from recipe.tests.test_views_user import setup_login
 
@@ -98,13 +98,13 @@ class PrivateUnitApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = setup_login(self.client, is_staff=True)
+        self.unit = create_unit("get_unit_name")
 
     def test_retrieve(self):
         """Test get model by id"""
-        unit = create_unit("get_unit_name")
-        serializer = serializers.UnitSerializer(unit)
+        serializer = serializers.UnitSerializer(self.unit)
 
-        res = self.client.get(id_url(URL_UNIT, unit.id))
+        res = self.client.get(id_url(URL_UNIT, self.unit.id))
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
@@ -112,6 +112,7 @@ class PrivateUnitApiTests(TestCase):
     def test_list(self):
         """Test get all models"""
         payload = [
+            self.unit,
             create_unit("list_unit1"),
             create_unit("list_unit2"),
         ]

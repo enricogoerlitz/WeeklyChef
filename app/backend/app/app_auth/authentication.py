@@ -5,8 +5,9 @@ from typing import Union
 
 from rest_framework.authentication import BaseAuthentication
 
-from app_auth import auth_service
 from djdevted.request import IRequest
+
+from app_auth import auth_service
 
 
 class JWTAuthUser:

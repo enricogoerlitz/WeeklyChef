@@ -7,7 +7,8 @@ exclude =
     manage.py,
     settings.py,
     env,
-    info.*
+    info.*,
+    djdevted,
 
 ignore = 
     W504,

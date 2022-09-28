@@ -22,32 +22,3 @@ def setup_login(
     )
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['token']}")
     return user
-
-
-# /api/v1/user/me/                      # return me as object
-# /api/v1/user/me/watchlists/           # list of user watchlists
-# /api/v1/user/me/favorite-recipes/     # list of user recipe favorites
-# /api/v1/user/me/favorite-foodshop/    # specific foodshop
-# /api/v1/user/me/cart/                 # cart of the user [full joined]
-# /api/v1/user/me/cart/count/
-
-
-# NEXT:
-# 1) Recipe Serializer mit
-#       TagSerializer(many=True) etc...
-#       IngredientSerializer
-#
-# 2) FoodShop Serializer mit
-#       Areas mit
-#           AreaParts mit
-#               AreaPartIngredients mit
-#                   Ingredients
-#
-# 3) UserCart Serializer mit
-#       Ingredients
-#
-# 4) Write TemplateTest -> devted
-# 5) Write CompareObj -> devted
-# 6) Refactor tests
-# ==> FINISHED
-#

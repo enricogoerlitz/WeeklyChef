@@ -11,7 +11,7 @@ class Unit(models.Model):
     )
 
     class Meta:
-        db_table = 'unit'
+        db_table = "unit"
 
     def __str__(self) -> str:
         return f"{self.id} | {self.unit_name}"
@@ -25,7 +25,7 @@ class Tag(models.Model):
     )
 
     class Meta:
-        db_table = 'tag'
+        db_table = "tag"
 
     def __str__(self) -> str:
         return f"{self.id} | {self.tag_name}"
@@ -62,7 +62,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        db_table = 'ingredient'
+        db_table = "ingredient"
 
     def __str__(self) -> str:
         return f"{self.id} | {self.ingredient_name}"
@@ -85,7 +85,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        db_table = 'recipe'
+        db_table = "recipe"
 
     def __str__(self) -> str:
         return f"{self.id} | {self.recipe_name} | user: {self.user}"
@@ -97,8 +97,8 @@ class RecipeFavorite(models.Model):
     recipe = models.ForeignKey(Recipe, models.CASCADE)
 
     class Meta:
-        db_table = 'recipe_favorite'
-        unique_together = (('user', 'recipe'),)
+        db_table = "recipe_favorite"
+        unique_together = (("user", "recipe"),)
 
     def __str__(self) -> str:
         return f"{self.id}"
@@ -113,7 +113,7 @@ class RecipeImage(models.Model):
     )
 
     class Meta:
-        db_table = 'recipe_image'
+        db_table = "recipe_image"
 
     def __str__(self) -> str:
         return f"{self.id} | {self.recipe} | {self.image_path}"
@@ -129,8 +129,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        db_table = 'recipe_ingredient'
-        unique_together = (('recipe', 'ingredient'),)
+        db_table = "recipe_ingredient"
+        unique_together = (("recipe", "ingredient"),)
 
     def __str__(self) -> str:
         return f"{self.id}"
@@ -151,8 +151,8 @@ class RecipeRating(models.Model):
     )
 
     class Meta:
-        db_table = 'recipe_rating'
-        unique_together = (('user', 'recipe'),)
+        db_table = "recipe_rating"
+        unique_together = (("user", "recipe"),)
 
     def __str__(self) -> str:
         return f"{self.id} | {self.recipe} | {self.rating}"
@@ -170,8 +170,8 @@ class RecipeTag(models.Model):
     )
 
     class Meta:
-        db_table = 'recipe_tag'
-        unique_together = (('recipe', 'tag'),)
+        db_table = "recipe_tag"
+        unique_together = (("recipe", "tag"),)
 
     def __str__(self) -> str:
         return f"{self.id}"
@@ -186,8 +186,8 @@ class Watchlist(models.Model):
     )
 
     class Meta:
-        db_table = 'watchlist'
-        unique_together = (('user', 'watchlist_name'),)
+        db_table = "watchlist"
+        unique_together = (("user", "watchlist_name"),)
 
     def __str__(self) -> str:
         return f"{self.id} | {self.user} | {self.watchlist_name}"
@@ -205,8 +205,8 @@ class RecipeWatchlist(models.Model):
     )
 
     class Meta:
-        db_table = 'recipe_watchlist'
-        unique_together = (('watchlist', 'recipe'),)
+        db_table = "recipe_watchlist"
+        unique_together = (("watchlist", "recipe"),)
 
     def __str__(self) -> str:
         return f"{self.id}"

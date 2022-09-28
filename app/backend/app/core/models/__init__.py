@@ -10,15 +10,15 @@ from .recipe import (
     Tag,
     Unit,
     RecipeWatchlist,
-    Watchlist
+    Watchlist,
 )
 from .cart import (
-    RecipeCart, RecipeCartIngredient, DayTime
+    RecipeCart, RecipeCartIngredient, DayTime,
 )
 from .food_shop import (
     FoodShop,
     FoodShopArea,
     FoodShopAreaPart,
     FoodShopAreaPartIngredient,
-    PreferredUserFoodShop
+    PreferredUserFoodShop,
 )
