@@ -177,44 +177,125 @@ class PrivateExampleApiTests(TestCase):
 
     def test_fail_retrieve_not_existing(self):
         """Test fail retrieve not existing object"""
-        pass
+        access_client = self.client
+
+        url = id_url(self.url, 101)
+        res = access_client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_fail_retrieve_no_auth(self):
         """Test fail retrieve object without auth"""
-        pass
+        denied_client = self.denied_client
+
+        url = id_url(self.url, 101)
+        res = denied_client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_fail_create_validation(self):
         """Test fail creating object by validation"""
-        pass
+        access_client = self.client
+
+        payload_to_short = {"to_short": ""}
+        payload_to_long = {"to_long": "very to long"}
+
+        url = self.url
+        res1 = access_client.post(url, payload_to_short)
+        res2 = access_client.post(url, payload_to_long)
+
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # the keys should be in the error response
+        self.assertIn("to_short", res1.data)
+        self.assertIn("to_long", res2.data)
     
     def test_fail_create_no_auth(self):
         """Test fail creating object without auth"""
-        pass
+        denied_client = self.denied_client
+
+        url = self.url
+        res = denied_client.post(url, {})
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_fail_patch_validation(self):
         """Test fail creating object by validation"""
-        pass
+        access_client = self.client
+
+        payload_to_short = {"to_short": ""}
+        payload_to_long = {"to_long": "very to long"}
+
+        url = id_url(self.url, self.example_obj.id)
+        res1 = access_client.patch(url, payload_to_short)
+        res2 = access_client.patch(url, payload_to_long)
+
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # the keys should be in the error response
+        self.assertIn("to_short", res1.data)
+        self.assertIn("to_long", res2.data)
     
     def test_fail_patch_no_auth(self):
         """Test fail creating object without auth"""
-        pass
+        denied_client = self.denied_client
+
+        url = id_url(self.url, self.example_obj.id)
+        res = denied_client.patch(url, {})
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_fail_put_validation(self):
         """Test fail creating object by validation"""
-        pass
+        access_client = self.client
+
+        payload1 = {**self.serializer.data}
+        payload2 = {**self.serializer.data}
+        payload1["to_short"] = ""
+        payload2["to_long"] = "very to long"
+
+        url = id_url(self.url, self.example_obj.id)
+        res1 = access_client.put(url, payload1)
+        res2 = access_client.put(url, payload2)
+
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # the keys should be in the error response
+        self.assertIn("to_short", res1.data)
+        self.assertIn("to_long", res2.data)
     
     def test_fail_put_no_auth(self):
         """Test fail creating object without auth"""
-        pass
+        denied_client = self.denied_client
+
+        url = id_url(self.url, self.example_obj.id)
+        res = denied_client.put(url, {})
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_fail_delete_no_auth(self):
         """Test fail deleting object without auth"""
-        pass
+        denied_client = self.denied_client
+
+        url = id_url(self.url, self.example_obj.id)
+        res = denied_client.delete(url, {})
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class ExampleModelTests(TestCase):
     """Test ExampleModel"""
 
-    def test_create(self):
+    def test_create_model(self):
         """Tests creating model"""
-        pass
+        params = {
+            "key1": "value1",
+            "key2": "value2",
+        }
+        obj = create_example_obj(**params)
+
+        for key, value in params.items():
+            self.assertEqual(getattr(obj, key), value)
