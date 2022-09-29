@@ -1,44 +1,46 @@
-# NEXT:
-# 1) Recipe Serializer / RecipeModel mit
-#       TagSerializer(many=True) etc...
-#       IngredientSerializer
-#
-# 2) FoodShop Serializer mit
-#       Areas mit
-#           AreaParts mit
-#               AreaPartIngredients mit
-#                   Ingredients
-#
-# 3) UserCart Serializer mit
-#       Ingredients
-#
-# 4) /user/me/* routes
-#
-# 5) Write TemplateTest -> devted
-# 6) Write CompareObj -> devted
-# 7) Refactor tests
-# ==> FINISHED
-#
+# Next Steps & Notes
 
-# /api/v1/user/me/                      # return me as object
-# /api/v1/user/me/watchlists/           # list of user watchlists
-# /api/v1/user/me/favorite-recipes/     # list of user recipe favorites
-# /api/v1/user/me/favorite-foodshop/    # specific foodshop
-# /api/v1/user/me/cart/                 # cart of the user [full joined]
-# /api/v1/user/me/cart/count/
+## Whats to do
 
+<ol>
+    <li>Rewrite Models (Recipe, User, FoodShop, Cart etc.) with ManyToMany-Fields</li>
+    <li>Rewrite Serializer</li>
+    <li>Rewrite Model tests</li>
+    <li>Rewrite API tests</li>
+    <li>Rewrite API-ViewSets</li>
+    <li>Add "/api/v1/user/me/*" routes</li>
+    <li>Upload image to a recipe</li>
+</ol>
 
-# ViewSet Notes
-
-// base ViewSetRoute /api/v1/recipe/[{pk}] <br>
-// detail=True, when pk...? /recipe/{pk}/test/  <br>
-// detail=False, when pk...? /recipe/test/  <br>
-@action(methods=["GET"], detail=False, url_path="test")  <br>
-def list_test(self, request: IRequest):  <br>
-    return Response({"test": True})  <br>
 <br>
+
+## Routes: /user/me/*
+
+/api/v1/user/me/                      # return me as object <br>
+/api/v1/user/me/watchlists/           # list of user watchlists <br>
+/api/v1/user/me/favorite-recipes/     # list of user recipe favorites <br>
+/api/v1/user/me/favorite-foodshop/    # specific foodshop <br>
+/api/v1/user/me/cart/                 # cart of the user [full joined] <br>
+/api/v1/user/me/cart/count/ <br>
+
+<br>
+
+## ViewSet Notes
+
+base ViewSetRoute /api/v1/recipe/[{pk}] <br>
+detail=True by pk /recipe/{pk}/test/ <br>
+detail=False no pk /recipe/test/ <br>
+@action(methods=["GET"], detail=False, url_path="test") <br>
+def list_test(self, request: IRequest): <br>
+    return Response({"test": True}) <br>
+
+
 @action(methods=["GET"], detail=True, url_path="test") <br>
 def retrieve_test(self, request: IRequest, pk): <br>
     return Response({"test_pk": pk}) <br>
 
-# APIView Notes
+<br>
+
+## APIView Notes
+
+pass
